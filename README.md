@@ -16,7 +16,7 @@ Once the cluster has finished spinning up, the `mesosphere_setup` folder has a s
 From the machine that you gave Mesosphere the ssh_keys for:
 
 ```
-$ git clone https://github.com/broadinstitute/herc.git
+$ git clone git@github.com:broadinstitute/herc.git
 $ cd mesosphere_setup
 
 # use the External IPs listed in your Mesosphere cluster's page.
