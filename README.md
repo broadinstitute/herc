@@ -45,6 +45,6 @@ This job sleeps and then prints the job number to stdout. There are three parame
 
 * `time`: the length of time to sleep.
 * `ninst`: the number of tasks to launch.
-* `jn`: the name of the job to run. Note that this has to be appended to the last part of the Aurora job ID, so a jn=foo means the job ID would be herc/jclouds/devel/batchJob_jn.
+* `jn`: the name of the job to run. Note that this has to be appended to the last part of the Aurora job ID, so `--bind jn=foo` means the job ID would be `herc/jclouds/devel/batchJob_foo`.
 
 You can then visit the Aurora scheduler and watch the jobs stack up and finish. You'll need to connect to the VPN provided by Mesosphere, and then go to the master's internal IP:8080 in your browser.
