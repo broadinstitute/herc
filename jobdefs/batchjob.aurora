@@ -1,0 +1,17 @@
+import os
+
+sleep = Process( name = 'sleep', cmdline = 'sleep {{time}}' )
+echo = Process( name = 'echo', cmdline = 'echo "This was task: {{mesos.instance}}"' )
+
+test_task = SequentialTask(
+        name = 'testTask',
+        processes = [sleep, echo],
+        resources = Resources(cpu = 1, ram = 1*MB, disk=1*MB) )
+
+jobs = [Job( name='batchJob_{{jn}}',
+             task=test_task,
+             role=os.getenv('USER'),
+             environment='devel',
+             cluster="herc",
+             constraints={'host':'limit:999999999'},
+             instances="{{ninst}}")]
