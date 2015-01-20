@@ -3,13 +3,19 @@ from tornado.web import RequestHandler, Application
 from tornado import httpserver
 import os.path
 import subprocess
-import pprint
+import json
+from collections import OrderedDict
 
 class base(RequestHandler):
 	def initialize(self):
 		self.set_header( 'Content-Type', 'application/json' )
 		self.set_header('Access-Control-Allow-Origin',	   '*')
 		self.set_header('Access-Control-Allow-Credentials', 'true')
+
+class index(base):
+	def get(self):
+		d = { end : endpoints[end]['desc'] for end in endpoints }
+		self.write( json.dumps(OrderedDict(sorted(d.items(), key=lambda t: t[0])), indent=1) )
 
 class schema(base):
 	def get(self):
@@ -29,15 +35,23 @@ class submit:
 			# Might fail to create a job for some reason. In which case, return a "sry no" back on the job's ID
 		pass
 
-urls = [
-	(r'/schema', schema)
-]
+endpoints = {
+	r'/' : {
+		'class' : index,
+	    'desc' : "This page."
+	},
+	r'/schema' : {
+		'class' : schema,
+	    'desc' : "Returns the JSON used to validate job submission requests."
+	}
+}
 
 def main():
 	#Generate a self-signed certificate and key if we don't already have one.
 	if not os.path.isfile("cert.pem") or not os.path.isfile("key.pem"):
 		subprocess.call( 'openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days 36500 -nodes -subj'.split() + ["/C=US/ST=MA/L=Cambridge/O=Broad Institute/OU=Prometheus"] )
 
+	urls = [ (end, endpoints[end]['class']) for end in endpoints ]
 	app = Application(urls, compress_response = True )
 	ili=IOLoop.instance()
 	http_server = httpserver.HTTPServer(app,
