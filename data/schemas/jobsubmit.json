@@ -1,0 +1,37 @@
+{
+    "type": "object",
+    "properties": {
+        "inputs": {
+            "type": "object",
+            "patternProperties": {
+                "^gcs://(.+)": {
+                    "type": "string",
+                    "pattern": "^[^/](.*)"
+                },
+                "_comment": {
+                    "type": "string",
+                    "pattern": "above: the members of the inputs object should have keys that begin with gcs:// and values that are relative file paths - that is to say, don't start with /."
+                }
+            },
+            "additionalProperties": false
+        },
+        "commandline": {
+            "type": "string"
+        },
+        "outputs": {
+            "type": "object",
+            "patternProperties": {
+                "^[^/](.*)": {
+                    "type": "string",
+                    "pattern": "^gcs://(.+)"
+                },
+                "_comment": {
+                    "type": "string",
+                    "pattern": "the inverse of inputs: map from relative file paths to gcs objects."
+                }
+            },
+            "additionalProperties": false
+        }
+    },
+    "required": ["inputs", "commandline", "outputs"]
+}

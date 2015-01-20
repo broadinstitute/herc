@@ -1,0 +1,7 @@
+*.pyc
+*.pyo
+ve_herc/
+.idea/
+*.iml
+*.pem
+*.egg-info/
