@@ -10,7 +10,7 @@ import json
 from collections import OrderedDict
 import time
 import jsonvalidate
-import aurorasubmit
+import aurora
 import async
 
 class base(RequestHandler):
@@ -47,7 +47,8 @@ class submit(base):
 	@gen.coroutine
 	def post(self):
 		#Validate the request against the schema. This will raise an HTTPError if it fails validation.
-		yield jsonvalidate.validate( self.request.body, "data/schemas/jobsubmit.json" )
+		jobrq = yield jsonvalidate.validate( self.request.body, "data/schemas/jobsubmit.json" )
+		yield aurora.requestjob(jobrq)
 
 		#TODO:
 		#1. DONE Validate the schema

@@ -1,0 +1,5 @@
+{
+	"inputs" : {},
+	"commandline" : "sleep 5; echo I did it!",
+	"outputs" : {}
+}
