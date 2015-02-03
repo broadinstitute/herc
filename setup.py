@@ -16,8 +16,9 @@ setup(name='herc',
 		'': ['data/schemas/*.json']
 		},
 	install_requires=[
-	 'tornado',
-	 'jsonschema'
+	 'tornado>=4.0',
+	 'jsonschema',
+	 'futures'
 	],
 	entry_points = { 'console_scripts': [ 'herc = webservice.webservice:main' ] },
 	zip_safe=False)
