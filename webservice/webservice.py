@@ -1,8 +1,6 @@
 from tornado.ioloop import IOLoop, PeriodicCallback
 from tornado.web import RequestHandler, Application
-from tornado.concurrent import run_on_executor
 from tornado import gen
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 from tornado import httpserver
 import os.path
 import subprocess
@@ -14,8 +12,6 @@ import aurora
 import async
 
 class base(RequestHandler):
-	thread_executor = ThreadPoolExecutor(max_workers=4) #general-purpose executor for async tasks that complete quickly
-	executor = thread_executor
 	def initialize(self):
 		self.set_header( 'Content-Type', 'application/json' )
 		self.set_header('Access-Control-Allow-Origin',	   '*')
@@ -100,7 +96,7 @@ def main():
 	urls = [ (end, endpoints[end]['class']) for end in endpoints ]
 	app = Application(urls, compress_response = True )
 	ili=IOLoop.instance()
-	async.io_loop=ili
+	async.io_loop=ili #set up io_loop for async executor
 	http_server = httpserver.HTTPServer(app,
 	                                    ssl_options={
 	                                    "certfile": "cert.pem",
