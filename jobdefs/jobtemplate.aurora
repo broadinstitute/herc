@@ -1,0 +1,36 @@
+import os
+
+{% for ps in processes %}
+{{ ps.name }} = Process( name = '{{ ps.name }}', cmdline = '{{ ps.cmd }}' )
+{% endfor %}
+
+{% for task in tasks %}
+{{ task.name }} = {{ task.type }}(
+    name = '{{ task.name }}',
+    processes = [ {{ task.processes|join(', ') }} ],
+    resources = Resources(  cpu = {{ task.cpus }},
+                            ram = {{ task.mem }}*{{ task.memunit }},
+                            disk = {{ task.disk }}*{{ task.diskunit }} )
+    )
+{% endfor %}
+
+{% for job in jobs %}
+{{ job.name }} = Job(   name = '{{ job.name }}',
+                        task = '{{ job.task }}',
+                        role = os.getenv('USER'),
+                        environment = '{{ job.env }}',
+                        cluster = '{{ job.cluster }}',
+                        constraints = { 'host':'limit:{{ job.hostlimit }}' }
+                        {# Job instance count would go here, but we don't yet pass mesos.instance to any of the
+                         # processes and we need the jobname + instance number -> commandline indirection for
+                         # this to work anyway
+                           instances = {{ job.instances }},
+
+                         # Docker goes here, once Aurora supports it.
+                         container = Container(docker = Docker(image = '{{ job.dockerimg }}'))
+
+
+                           #} )
+{% endfor %}
+
+jobs = [ {{ jobs|map(attribute='name')|join(', ') }} ]
