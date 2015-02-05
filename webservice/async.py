@@ -12,7 +12,8 @@ executors = {
 
 def usepool(executor):
 	"""
-	Decorator that runs the decorated function asynchronously in the given executor pool whenever it's run. Anything calling a function decorated with this decorator must be a gen.coroutine.
+	Decorator that runs the decorated function asynchronously in the given executor pool whenever it's run.
+	Anything calling a function decorated with this decorator must be a gen.coroutine.
 	"""
 	def dec(func):
 		@wraps(func)

@@ -52,6 +52,7 @@ def requestjob(jobrq):
 	tmpfile.write( template.render(jr) )
 
 	#subprocess.call( 'aurora job create herc/devel/env/task ' + tmpfile.name )
+	#what does aurora return here?
 
 	#don't do this until after the job is submitted
 	tmpfile.close()
