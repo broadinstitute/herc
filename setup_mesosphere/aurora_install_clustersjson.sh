@@ -4,7 +4,7 @@
 ips=$(hostname -I)
 iparr=($ips)
 myip=${iparr[0]}
-  #sudo mkdir /etc/aurora
+sudo mkdir /etc/aurora
 cat <<EOF > /etc/aurora/clusters.json
 [{
   "name": "herc",

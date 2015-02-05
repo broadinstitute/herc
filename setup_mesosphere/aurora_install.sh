@@ -44,7 +44,7 @@ EOF'
 install_prereqs
 source /etc/profile
 
-MESOS_VERSION="0.20.1"
+MESOS_VERSION="0.21.1"
 DIST_DIR=~/aurora-src/dist
 
 #Building the Aurora scheduler proper.
@@ -74,7 +74,7 @@ function build_scheduler {
   
   #Install Mesos Python packages to the pants venv
   source build-support/pants.venv/bin/activate
-  easy_install /usr/local/lib/python2.7/dist-packages/mesos-${MESOS_VERSION}-py2.7-linux-x86_64.egg
+  easy_install http://downloads.mesosphere.io/master/debian/7/mesos-${MESOS_VERSION}-py2.7-linux-x86_64.egg
   easy_install /usr/local/lib/python2.7/dist-packages/mesos.interface-${MESOS_VERSION}-py2.7.egg
   deactivate
   popd
@@ -87,7 +87,7 @@ function build_client {
   echo ""
   sleep 1
   pushd aurora-src
-  ./pants src/main/python/apache/aurora/client/cli:aurora
+  ./pants binary src/main/python/apache/aurora/client/cli:aurora
   sudo ln -sf $DIST_DIR/aurora.pex /usr/local/bin/aurora
   
   sudo bash ./aurora_install_clustersjson.sh
@@ -101,7 +101,7 @@ function build_admin_client {
   echo ""
   sleep 1
   pushd aurora-src
-  ./pants src/main/python/apache/aurora/admin:aurora_admin
+  ./pants binary src/main/python/apache/aurora/admin:aurora_admin
   sudo ln -sf $DIST_DIR/aurora_admin.pex /usr/local/bin/aurora_admin
   popd
 }
@@ -121,9 +121,9 @@ function build_executor {
   wget -c https://svn.apache.org/repos/asf/incubator/aurora/3rdparty/ubuntu/trusty64/python/mesos.native-${MESOS_VERSION}-py2.7-linux-x86_64.egg
   popd
   
-  ./pants src/main/python/apache/aurora/executor/bin:gc_executor
-  ./pants src/main/python/apache/aurora/executor/bin:thermos_executor
-  ./pants src/main/python/apache/thermos/bin:thermos_runner
+  ./pants binary src/main/python/apache/aurora/executor/bin:gc_executor
+  ./pants binary src/main/python/apache/aurora/executor/bin:thermos_executor
+  ./pants binary src/main/python/apache/thermos/bin:thermos_runner
 
   # Package runner within executor.
   python <<EOF
@@ -155,7 +155,7 @@ function build_observer {
   echo ""
   sleep 1
   pushd aurora-src
-  ./pants src/main/python/apache/thermos/observer/bin:thermos_observer
+  ./pants binary src/main/python/apache/thermos/observer/bin:thermos_observer
   popd
 }
 
