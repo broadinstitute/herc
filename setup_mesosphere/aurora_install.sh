@@ -118,7 +118,7 @@ function build_executor {
   #Get mesos.native egg from Aurora SVN so thermos etc. can install. Note that this is Ubuntu, which *should* be compatible with Debian. But for safekeeping, the herc GitHub repo also contains a copy of the egg built on one of the Mesosphere GCE nodes.
   mkdir third_party
   pushd third_party
-  wget -c https://svn.apache.org/repos/asf/incubator/aurora/3rdparty/ubuntu/trusty64/python/mesos.native-${MESOS_VERSION}-py2.7-linux-x86_64.egg
+  cp ~/mesos.native-${MESOS_VERSION}-py2.7-linux-x86_64.egg .
   popd
   
   ./pants binary src/main/python/apache/aurora/executor/bin:gc_executor

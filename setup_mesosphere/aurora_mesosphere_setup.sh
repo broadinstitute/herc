@@ -15,7 +15,7 @@ shift
 echo "Copying over install files to Mesos master..."
 echo ""
 echo ""
-scp aurora_install.sh aurora_install_clustersjson.sh aurora_scheduler_startup.sh aurora_startup.sh aurora_thermos_startup.sh ../jobdefs/testjob.aurora ../jobdefs/batchjob.aurora $mesosuser@$master_ip:~
+scp mesos.native-0.21.1-py2.7-linux-x86_64.egg aurora_install.sh aurora_install_clustersjson.sh aurora_scheduler_startup.sh aurora_startup.sh aurora_thermos_startup.sh ../jobdefs/testjob.aurora ../jobdefs/batchjob.aurora $mesosuser@$master_ip:~
 
 echo ""
 echo ""
