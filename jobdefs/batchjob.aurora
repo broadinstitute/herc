@@ -6,7 +6,7 @@ echo = Process( name = 'echo', cmdline = 'echo "This was task: {{mesos.instance}
 test_task = SequentialTask(
         name = 'testTask',
         processes = [sleep, echo],
-        resources = Resources(cpu = 1, ram = 1*MB, disk=1*MB) )
+        resources = Resources(cpu = 1, ram = 1*MB, disk=2*MB) )
 
 jobs = [Job( name='batchJob_{{jn}}',
              task=test_task,
