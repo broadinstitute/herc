@@ -89,9 +89,9 @@ function build_client {
   pushd aurora-src
   ./pants binary src/main/python/apache/aurora/client/cli:aurora
   sudo ln -sf $DIST_DIR/aurora.pex /usr/local/bin/aurora
+  popd
   
   sudo bash ./aurora_install_clustersjson.sh
-  popd
 }
 
 #Builds the Aurora admin client.
