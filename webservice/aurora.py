@@ -4,6 +4,7 @@ import async
 import tempfile
 import uuid
 import subprocess
+import os
 
 loader = FileSystemLoader('jobdefs')
 env = Environment(loader=loader, trim_blocks=True, lstrip_blocks=True)
@@ -53,6 +54,8 @@ def requestjob(jobrq):
 
 	#might error.
 	tmpfile.write( template.render(jr) )
+	tmpfile.flush()
+	os.fsync(tmpfile.fileno())
 
 	#what does aurora return here?
 	#we could parse the output...

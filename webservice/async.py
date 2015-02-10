@@ -7,7 +7,7 @@ io_loop = None #set this to io_loop!
 executors = {
 				'shortjob'  : ThreadPoolExecutor(max_workers=4),
 				'longjob'   : ThreadPoolExecutor(max_workers=4),
-				'longps'    : ProcessPoolExecutor(max_workers=4)
+				'longps'    : ThreadPoolExecutor(max_workers=4)
 			}
 
 def usepool(executor):
