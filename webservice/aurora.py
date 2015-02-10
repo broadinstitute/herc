@@ -1,8 +1,9 @@
 from jinja2 import FileSystemLoader
 from jinja2 import Environment
-from tornado.web import HTTPError
 import async
 import tempfile
+import uuid
+import subprocess
 
 loader = FileSystemLoader('jobdefs')
 env = Environment(loader=loader, trim_blocks=True, lstrip_blocks=True)
@@ -12,6 +13,8 @@ def requestjob(jobrq):
 	"""Takes the job request object and converts it into an Aurora definition file.
 	Creates a GUID and submits the Aurora definition file to Aurora with the GUID.
 	"""
+
+	jobid = str(uuid.uuid4())
 
 	jr = dict()
 
@@ -30,13 +33,13 @@ def requestjob(jobrq):
 	                    'cpus' : 1,
 	                    'mem'  : 1,
 	                    'memunit' : "GB",
-	                    'disk' : 1,
+	                    'disk' : 2,
 	                    'diskunit' : "MB"
 	                } ]
 
 	#as above: we assume the tasks list has been constructed such that the last task
 	#in the list is the one we want to execute for this job.
-	jr['jobs'] = [ {    'name' : 'foo_job',
+	jr['jobs'] = [ {    'name' : jobid,
 	                    'task' : jr['tasks'][-1]['name'],
 						'env'  : 'devel',   #configurable?
 	                    'cluster' : 'herc', #also configurable?
@@ -51,8 +54,11 @@ def requestjob(jobrq):
 	#might error.
 	tmpfile.write( template.render(jr) )
 
-	#subprocess.call( 'aurora job create herc/devel/env/task ' + tmpfile.name )
 	#what does aurora return here?
+	#we could parse the output...
+	subprocess.call( ['aurora', 'job', 'create', 'herc/jclouds/env/' + jobid, tmpfile.name] )
 
 	#don't do this until after the job is submitted
 	tmpfile.close()
+
+	return jobid
