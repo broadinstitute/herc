@@ -7,7 +7,7 @@
 
 herc uses [Apache Aurora](http://aurora.incubator.apache.org/) to schedule jobs running on an [Apache Mesos](http://mesos.apache.org/) cluster.
 
-## Installation
+## Setting up Mesosphere
 
 For now, the easiest way to get herc running is by spinning up a cluster on [Mesosphere](https://google.mesosphere.com/).
 
@@ -23,28 +23,45 @@ $ cd mesosphere_setup
 $ ./aurora_mesosphere_setup.sh master_ip slave1_ip slave2_ip slave3_ip ... slaveN_ip
 ```
 
-## Running
+## Installing herc
 
-Once this is done you can ssh into the master node and start running jobs. This one will sleep for 5 seconds and then print `Hello herc!` to stdout:
+Herc runs on Python 2.7. It may be upgraded to Python 3 at some point, depending on where DSDE Engineering settles re Python standards.
 
-```
-$ ssh jclouds@master_ip
----
-$ aurora job create herc/jclouds/devel/testJob testjob.aurora
-```
-
-## Other examples
-
-If you want to test Aurora's ability to schedule lots of jobs, `batchjob.aurora` will do the trick:
+On the Mesosphere master:
 
 ```
-aurora job create --bind time=2 --bind ninst=1000 --bind jn=1k herc/jclouds/devel/batchJob_1k batchjob.aurora
+$ git clone git@github.com:broadinstitute/herc.git
+$ virtualenv ve_herc
+$ source ve_herc/bin/activate
+$ python setup.py develop
+$ screen -mdS herc bash -c 'source ve_herc/bin/activate && herc'
 ```
 
-This job sleeps and then prints the job number to stdout. There are three parameters to this job:
+## API
 
-* `time`: the length of time to sleep.
-* `ninst`: the number of tasks to launch.
-* `jn`: the name of the job to run. Note that this has to be appended to the last part of the Aurora job ID, so `--bind jn=foo` means the job ID would be `herc/jclouds/devel/batchJob_foo`.
+The full list of endpoints provided by herc are always available at:
 
-You can then visit the Aurora scheduler and watch the jobs stack up and finish. You'll need to connect to the VPN provided by Mesosphere, and then go to the master's internal IP:8080 in your browser.
+```GET https://localhost:4372/```
+
+(4372 is HERC on a phone keypad, if you were wondering.)
+
+At the time of writing, the endpoints are:
+
+* `GET /` Returns a list of endpoints and brief descriptions. This is always accurate; the document you're reading now may not be!
+* `GET /schema` Returns the JSON schema used to validate job submissions sent to `/submit`.
+* `POST /submit` Expects a JSON body that validates against the schema returned by `/schema`. Returns a string, the job ID.
+* `GET /sleep?sleep=n` Test endpoint that keeps the connection open for n seconds and then returns how long it was open for.
+
+## Watching it go
+
+Connect to the VPN provided by Mesosphere. From there, there are two things to look at:
+
+#### Aurora
+
+```master_ip:8081/scheduler```
+
+Shows Aurora details about your job. You'll be able to see if it got lost; most often this is because the executor wasn't correctly installed and Mesos gave up on it. In this case you'll see a bunch of failed jobs and an active job that's throttled for "flapping".
+
+#### Mesos: master_ip:5050
+
+Will show you the jobs that Mesos knows about, and allow you dig into the stderr and stdout files generated in the slave sandboxes.
