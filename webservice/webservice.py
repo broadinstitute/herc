@@ -44,7 +44,7 @@ class submit(base):
 	def post(self):
 		#Validate the request against the schema. This will raise an HTTPError if it fails validation.
 		#jobrq = yield jsonvalidate.validate( self.request.body, "data/schemas/jobsubmit.json" )
-		jobid = yield aurora.requestjob()
+		jobid = yield aurora.requestjob(None)
 
 		#TODO:
 		#1. DONE Validate the schema
