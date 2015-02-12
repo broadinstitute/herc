@@ -29,7 +29,7 @@ class base(RequestHandler):
 
 class index(base):
 	def get(self):
-		d = { end : endpoints[end]['desc'] for end in endpoints }
+		d = { endpoints[end]['friendly'] : endpoints[end]['desc'] for end in endpoints }
 		self.write( json.dumps(OrderedDict(sorted(d.items(), key=lambda t: t[0])), indent=1) )
 		self.finish()
 
@@ -59,8 +59,8 @@ class submit(base):
 
 class sleep(base):
 	@gen.coroutine
-	def get(self):
-		ret = yield self.sleep( int(self.get_query_argument('sleep', '0')) )
+	def get(self, secs = 0):
+		ret = yield self.sleep( int(secs) )
 		self.write(ret)
 
 	@async.usepool('shortjob')
@@ -72,19 +72,23 @@ class sleep(base):
 endpoints = {
 	r'/' : {
 		'class' : index,
+		'friendly' : "GET /",
 	    'desc' : "This page."
 	},
-	r'/schema' : {
+	r'/schema/?' : {
 		'class' : schema,
-	    'desc' : "Returns the JSON used to validate job submission requests."
+		'friendly' : "GET /schema",
+	    'desc' : "Returns the JSON schema used to validate job submission requests."
 	},
-	r'/submit' : {
+	r'/submit/?' : {
 	'class' : submit,
-	'desc' : "POST your job request here."
+	'friendly' : "POST /submit",
+	'desc' : "Submits a job request. Body must be JSON that validates against the JSON schema available at GET /schema. Returns a string, the job ID."
 	},
-    r'/sleep' : {
+    r'/sleep/(.*)/?' : {
 	'class' : sleep,
-	'desc' : "GET?sleep=n to sleep for n seconds and then return."
+	'friendly' : "GET /sleep/n",
+	'desc' : "Sleeps for n seconds and then return."
 	}
 }
 
