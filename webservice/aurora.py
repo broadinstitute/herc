@@ -10,6 +10,22 @@ import time
 loader = FileSystemLoader('jobdefs')
 env = Environment(loader=loader, trim_blocks=True, lstrip_blocks=True)
 
+aurora_checked = False
+aurora_exists = True
+def _aurora_installed():
+	global aurora_checked
+	global aurora_exists
+
+	if not aurora_checked:
+		aurora_checked = True
+		try:
+			subprocess.call(["aurora"])
+			aurora_exists = True
+		except OSError:
+			print "WARNING: aurora not installed, aurora endpoints will return dummy values"
+			aurora_exists = False
+	return aurora_exists
+
 @async.usepool('longps')
 def requestjob(jobrq):
 	"""Takes the job request object and converts it into an Aurora definition file.
@@ -60,9 +76,10 @@ def requestjob(jobrq):
 
 	#what does aurora return here?
 	#we could parse the output...
-	then = time.time()
-	subprocess.call( ['aurora', 'job', 'create', 'herc/jclouds/devel/' + jobid, tmpfile.name] )
-	auroratime = time.time() - then
+	if _aurora_installed():
+		then = time.time()
+		subprocess.call( ['aurora', 'job', 'create', 'herc/jclouds/devel/' + jobid, tmpfile.name] )
+		auroratime = time.time() - then
 
 	#don't do this until after the job is submitted
 	tmpfile.close()
