@@ -41,7 +41,7 @@ $ screen -mdS herc bash -c 'source ve_herc/bin/activate && herc'
 
 The full list of endpoints provided by herc are always available at:
 
-```GET https://localhost:4372/```
+`GET https://localhost:4372/`
 
 (4372 is HERC on a phone keypad, if you were wondering.)
 
@@ -58,10 +58,12 @@ Connect to the VPN provided by Mesosphere. From there, there are two things to l
 
 #### Aurora
 
-```master_ip:8081/scheduler```
+`master_ip:8081/scheduler`
 
 Shows Aurora details about your job. You'll be able to see if it got lost; most often this is because the executor wasn't correctly installed and Mesos gave up on it. In this case you'll see a bunch of failed jobs and an active job that's throttled for "flapping".
 
-#### Mesos: master_ip:5050
+#### Mesos:
+
+`master_ip:5050`
 
 Will show you the jobs that Mesos knows about, and allow you dig into the stderr and stdout files generated in the slave sandboxes.
