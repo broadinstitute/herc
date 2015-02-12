@@ -18,7 +18,8 @@ setup(name='herc',
 	install_requires=[
 	 'tornado>=4.0',
 	 'jsonschema',
-	 'futures'
+	 'futures',
+	 'Jinja2>=2.2'
 	],
 	entry_points = { 'console_scripts': [ 'herc = webservice.webservice:main' ] },
 	zip_safe=False)

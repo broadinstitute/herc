@@ -43,8 +43,8 @@ class submit(base):
 	@gen.coroutine
 	def post(self):
 		#Validate the request against the schema. This will raise an HTTPError if it fails validation.
-		jobrq = yield jsonvalidate.validate( self.request.body, "data/schemas/jobsubmit.json" )
-		yield aurora.requestjob(jobrq)
+		#jobrq = yield jsonvalidate.validate( self.request.body, "data/schemas/jobsubmit.json" )
+		jobid = yield aurora.requestjob()
 
 		#TODO:
 		#1. DONE Validate the schema
@@ -54,7 +54,7 @@ class submit(base):
 
 		# Aurora job create worker:
 			# Might fail to create a job for some reason. In which case, return a "sry no" back on the job's ID
-		self.write("success!")
+		self.write(jobid)
 		self.finish()
 
 class sleep(base):
