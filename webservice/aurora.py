@@ -5,6 +5,7 @@ import tempfile
 import uuid
 import subprocess
 import os
+import time
 
 loader = FileSystemLoader('jobdefs')
 env = Environment(loader=loader, trim_blocks=True, lstrip_blocks=True)
@@ -15,7 +16,7 @@ def requestjob(jobrq):
 	Creates a GUID and submits the Aurora definition file to Aurora with the GUID.
 	"""
 
-	jobid = str(uuid.uuid4())
+	jobid = "job_" + str(uuid.uuid4()).replace('-', '_')
 
 	jr = dict()
 
@@ -59,7 +60,9 @@ def requestjob(jobrq):
 
 	#what does aurora return here?
 	#we could parse the output...
-	subprocess.call( ['aurora', 'job', 'create', 'herc/jclouds/env/' + jobid, tmpfile.name] )
+	then = time.time()
+	subprocess.call( ['aurora', 'job', 'create', 'herc/jclouds/devel/' + jobid, tmpfile.name] )
+	auroratime = time.time() - then
 
 	#don't do this until after the job is submitted
 	tmpfile.close()

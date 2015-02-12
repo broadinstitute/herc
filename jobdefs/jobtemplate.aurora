@@ -16,7 +16,7 @@ import os
 
 {% for job in jobs %}
 {{ job.name }} = Job(   name = '{{ job.name }}',
-                        task = '{{ job.task }}',
+                        task = {{ job.task }},
                         role = os.getenv('USER'),
                         environment = '{{ job.env }}',
                         cluster = '{{ job.cluster }}',
