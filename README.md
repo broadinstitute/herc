@@ -62,7 +62,7 @@ Connect to the VPN provided by Mesosphere. From there, there are two things to l
 
 Shows Aurora details about your job. You'll be able to see if it got lost; most often this is because the executor wasn't correctly installed and Mesos gave up on it. In this case you'll see a bunch of failed jobs and an active job that's throttled for "flapping".
 
-#### Mesos:
+#### Mesos
 
 `master_ip:5050`
 
