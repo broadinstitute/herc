@@ -28,7 +28,7 @@ def usepool(executor):
 class Task:
 	"""
 	Class that turns any function into an asynchronous call.
-	Usage: t = Task( 'shortjob' )
+	Usage: t = Task( 'executorname' )
 	result = yield t.run( fn, *args, **kwargs )
 	Caller must be a gen.coroutine.
 	"""
