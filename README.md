@@ -50,7 +50,8 @@ At the time of writing, the endpoints are:
 * `GET /` Returns a list of endpoints and brief descriptions. This is always accurate; the document you're reading now may not be!
 * `GET /schema` Returns the JSON schema used to validate job submissions sent to `/submit`.
 * `POST /submit` Expects a JSON body that validates against the schema returned by `/schema`. Returns a string, the job ID.
-* `GET /sleep/n` Test endpoint that keeps the connection open for n seconds and then returns how long it was open for.
+* `GET /status/<jobid>` Query Aurora and return the status of the job id. 404 if not found, otherwise will return JSON with the job's current status and the time it entered that status.
+* `GET /sleep/<n>` Test endpoint that keeps the connection open for n seconds and then returns how long it was open for.
 
 ## Watching it go
 
