@@ -6,6 +6,8 @@ import uuid
 import subprocess
 import os
 import time
+import json
+from tornado.web import HTTPError
 
 loader = FileSystemLoader('jobdefs')
 env = Environment(loader=loader, trim_blocks=True, lstrip_blocks=True)
@@ -26,7 +28,7 @@ def _aurora_installed():
 			aurora_exists = False
 	return aurora_exists
 
-@async.usepool('long')
+@async.usepool('aurora')
 def requestjob(jobrq):
 	"""Takes the job request object and converts it into an Aurora definition file.
 	Creates a GUID and submits the Aurora definition file to Aurora with the GUID.
@@ -85,3 +87,19 @@ def requestjob(jobrq):
 	tmpfile.close()
 
 	return jobid
+
+@async.usepool('aurora')
+def status(jobid):
+	if _aurora_installed():
+		then = time.time()
+		resjson = subprocess.call( ['aurora', 'job', 'status', 'herc/jclouds/devel/' + jobid, "--write-json"] )
+		auroratime = time.time() - then
+
+		jobresult = json.loads(resjson)
+		if 'error' in jobresult:
+			raise HTTPError(404, "Job ID " + jobid + " not found")
+		else:
+			# parse this:
+			# [ { "job" : "cluster/role/env/jobid", "active" : [ {}, ... ], "inactive" : [ {}, ... ] } ]
+			# into the job's current status and the time it entered that status
+			pass

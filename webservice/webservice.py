@@ -61,6 +61,14 @@ class submit(base):
 		self.write(jobid)
 		self.finish()
 
+class status(base):
+	@gen.coroutine
+	def get(self, jobid):
+		"""Query Aurora and return the status of this job. 404 if not found, otherwise will return JSON with the job's current status and the time it entered that status."""
+		status = yield aurora.status(jobid)
+		self.write(json.dumps(status, indent=1))
+		self.finish()
+
 class sleep(base):
 	@gen.coroutine
 	def get(self, n = 0):
@@ -86,6 +94,10 @@ endpoints = {
 	r'/submit/?' : {
 	'class' : submit,
 	'friendly' : { 'post' : "/submit" }
+	},
+	r'/status/(.*)/?' : {
+	'class' : status,
+	'friendly' : { 'get' : "/status/jobid" }
 	},
     r'/sleep/(.*)/?' : {
 	'class' : sleep,
