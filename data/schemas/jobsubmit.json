@@ -1,37 +1,43 @@
 {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+
+    "definitions": {
+        "pathpair": {
+            "type": "object",
+            "properties": {
+                "cloud": { "type": "string", "pattern": "(^gcs://(.+))|(^boss://(.+))" },
+                "local": { "type": "string", "pattern" : "^/(.*)" }
+            },
+            "required": ["cloud", "local"],
+            "additionalProperties" : false
+        },
+        "bytesunit" : { "type" : "string", "pattern": "^BYTES|^KB|^MB|^GB|^TB", "default" : "MB" }
+    },
+
     "type": "object",
     "properties": {
         "inputs": {
-            "type": "object",
-            "patternProperties": {
-                "^gcs://(.+)": {
-                    "type": "string",
-                    "pattern": "^[^/](.*)"
-                },
-                "_comment": {
-                    "type": "string",
-                    "pattern": "above: the members of the inputs object should have keys that begin with gcs:// and values that are relative file paths - that is to say, don't start with /."
-                }
-            },
-            "additionalProperties": false
+            "type": "array",
+            "items": { "$ref": "#/definitions/pathpair" }
         },
         "commandline": {
             "type": "string"
         },
         "outputs": {
-            "type": "object",
-            "patternProperties": {
-                "^[^/](.*)": {
-                    "type": "string",
-                    "pattern": "^gcs://(.+)"
-                },
-                "_comment": {
-                    "type": "string",
-                    "pattern": "the inverse of inputs: map from relative file paths to gcs objects."
-                }
+            "type": "array",
+            "items": { "$ref": "#/definitions/pathpair" }
+        },
+        "resources": {
+            "type" : "object",
+            "properties" : {
+                "cpus" : { "type" : "integer", "minimum": 1 },
+                "mem" :  { "type" : "integer", "minimum": 1 },
+                "memunit" : { "$ref": "#/definitions/bytesunit" },
+                "disk" : { "type" : "integer", "minimum": 1 },
+                "diskunit" : { "$ref": "#/definitions/bytesunit" }
             },
-            "additionalProperties": false
+            "required": ["cpus", "mem", "disk"]
         }
     },
-    "required": ["inputs", "commandline", "outputs"]
+    "required": ["inputs", "commandline", "outputs", "resources"]
 }
