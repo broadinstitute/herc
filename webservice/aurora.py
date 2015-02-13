@@ -90,6 +90,13 @@ def requestjob(jobrq):
 
 @async.usepool('aurora')
 def status(jobid):
+	"""Return the status of this job ID on Aurora.
+	See the Aurora code for a full list of statuses:
+		https://github.com/apache/incubator-aurora/blob/61e6c35f91e959ba6247dddc3fe3524795c5f851/api/src/main/thrift/org/apache/aurora/gen/api.thrift#L348
+	"""
+	output = dict()
+	output['jobid'] = jobid
+
 	if _aurora_installed():
 		then = time.time()
 		resjson = subprocess.call( ['aurora', 'job', 'status', 'herc/jclouds/devel/' + jobid, "--write-json"] )
@@ -97,9 +104,23 @@ def status(jobid):
 
 		jobresult = json.loads(resjson)
 		if 'error' in jobresult:
+			# {"jobspec":"herc/jclouds/devel/nonexistent_job","error":"No matching jobs found"}
 			raise HTTPError(404, "Job ID " + jobid + " not found")
 		else:
-			# parse this:
-			# [ { "job" : "cluster/role/env/jobid", "active" : [ {}, ... ], "inactive" : [ {}, ... ] } ]
-			# into the job's current status and the time it entered that status
-			pass
+			# example json is in data/example_aurora_jobstatus.json
+			jobresult = jobresult[0]
+
+			#Assuming unique IDs per job, the length of these two arrays will usually sum to 1.
+			#However, Aurora will retry LOST jobs, and may kill and reschedule jobs for host maintenance or job pre-emption.
+			#See https://broadinstitute.atlassian.net/browse/DSDEES-21
+			jobruns = jobresult['active'] + jobresult['inactive']
+
+			lastrun = jobruns[0]
+
+			output['status'] = lastrun['status']
+			output['time'] = lastrun['taskEvents'][-1]['timestamp']
+	else:
+		output['status'] = 'FINISHED'
+		output['time'] = int(time.time()*1000)
+
+	return output
