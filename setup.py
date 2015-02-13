@@ -12,8 +12,8 @@ setup(name='herc',
 	author='Broad Institute',
 	packages=find_packages(),
 	package_data = {
-		# Include all JSON schemas.
-		'': ['data/schemas/*.json']
+		# Include everything in data/, both schemas and examples.
+		'': ['data/*']
 		},
 	install_requires=[
 	 'tornado>=4.0',
