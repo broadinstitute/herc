@@ -99,7 +99,7 @@ def status(jobid):
 
 	if _aurora_installed():
 		then = time.time()
-		resjson = subprocess.call( ['aurora', 'job', 'status', 'herc/jclouds/devel/' + jobid, "--write-json"] )
+		resjson = subprocess.check_output( ['aurora', 'job', 'status', 'herc/jclouds/devel/' + jobid, "--write-json"] )
 		auroratime = time.time() - then
 
 		jobresult = json.loads(resjson)
@@ -121,6 +121,6 @@ def status(jobid):
 			output['time'] = lastrun['taskEvents'][-1]['timestamp']
 	else:
 		output['status'] = 'FINISHED'
-		output['time'] = int(time.time()*1000)
+		output['time'] = int(time.time()*1000) #aurora returns unixtime ms so we should too
 
 	return output

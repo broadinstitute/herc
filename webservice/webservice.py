@@ -22,10 +22,18 @@ class base(RequestHandler):
 		if self.settings.get("serve_traceback") and "exc_info" in kwargs:
 			super(base, self).write_error(status_code, kwargs)
 		else:
+			log_msg = None
+			try:
+				log_msg = kwargs['exc_info'][1].log_message
+			except (KeyError, AttributeError):
+				pass
+			finally:
+				log_msg = self._reason if log_msg is None else log_msg
+
 			self.set_header( 'Content-Type', 'application/json' )
 			self.finish("%(code)d: %(message)s" % {
 				"code": status_code,
-				"message": self._reason
+				"message": log_msg
 				})
 
 class index(base):
