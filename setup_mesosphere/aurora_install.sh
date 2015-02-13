@@ -53,7 +53,7 @@ function build_scheduler {
   echo ""
   echo ""
   sleep 1
-  git clone http://git-wip-us.apache.org/repos/asf/incubator-aurora.git aurora-src
+  git clone -b 0.7.0-incubating --single-branch https://github.com/apache/incubator-aurora.git aurora-src
   pushd aurora-src
   ./gradlew distZip
 
