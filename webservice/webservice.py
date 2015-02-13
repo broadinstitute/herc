@@ -5,12 +5,11 @@ from tornado import httpserver
 import os.path
 import subprocess
 import json
-from collections import OrderedDict
 import time
 import jsonvalidate
 import aurora
 import async
-import inspect
+import endpoints
 
 class base(RequestHandler):
 	def initialize(self):
@@ -38,13 +37,15 @@ class base(RequestHandler):
 
 class index(base):
 	def get(self):
-		"""Returns the list of endpoints that this webservice provides."""
-		self.write( json.dumps(friendly_endpoints, indent=1) )
+		"""GET /
+		Returns the list of endpoints that this webservice provides."""
+		self.write( json.dumps(pretty_endpoints, indent=1) )
 		self.finish()
 
 class schema(base):
 	def get(self):
-		"""Returns the JSON schema used to validate job submission requests."""
+		"""GET /schema
+		Returns the JSON schema used to validate job submission requests."""
 		with open("data/schemas/jobsubmit.json", 'r') as jschema:
 			self.write(jschema.read())
 			self.finish()
@@ -52,7 +53,8 @@ class schema(base):
 class submit(base):
 	@gen.coroutine
 	def post(self):
-		"""Submits a job request. Body must be JSON that validates against the JSON schema available at GET /schema. Returns a string, the job ID."""
+		"""POST /submit
+		Submits a job request. Body must be JSON that validates against the JSON schema available at GET /schema. Returns a string, the job ID."""
 
 		#Validate the request against the schema. This will raise an HTTPError if it fails validation.
 		#jobrq = yield jsonvalidate.validate( self.request.body, "data/schemas/jobsubmit.json" )
@@ -72,7 +74,8 @@ class submit(base):
 class status(base):
 	@gen.coroutine
 	def get(self, jobid):
-		"""Query Aurora and return the status of this job. 404 if not found, otherwise will return JSON with the job's current status and the time it entered that status."""
+		"""GET /status/<jobid>
+		Query Aurora and return the status of this job. 404 if not found, otherwise will return JSON with the job's current status and the time it entered that status."""
 		status = yield aurora.status(jobid)
 		self.write(json.dumps(status, indent=1))
 		self.finish()
@@ -80,7 +83,8 @@ class status(base):
 class sleep(base):
 	@gen.coroutine
 	def get(self, n = 0):
-		"""Sleep for n seconds and then return."""
+		"""GET /sleep/<n>
+		Sleep for n seconds and then return."""
 		ret = yield self.sleep( int(n) )
 		self.write(ret)
 
@@ -90,54 +94,21 @@ class sleep(base):
 		time.sleep(secs)
 		return "Slept for " + str(time.time()-then) + " seconds"
 
-endpoints = {
-	r'/' : {
-		'class' : index,
-		'friendly' : { 'get' : "/" }
-	},
-	r'/schema/?' : {
-		'class' : schema,
-		'friendly' : { 'get' : "/schema" }
-	},
-	r'/submit/?' : {
-	'class' : submit,
-	'friendly' : { 'post' : "/submit" }
-	},
-	r'/status/(.*)/?' : {
-	'class' : status,
-	'friendly' : { 'get' : "/status/jobid" }
-	},
-    r'/sleep/(.*)/?' : {
-	'class' : sleep,
-	'friendly' : { 'get' : "/sleep/n" }
-	}
+endpoint_mapping = {
+	r'/' : { 'class' : index },
+	r'/schema/?' : { 'class' : schema },
+	r'/submit/?' : { 'class' : submit },
+	r'/status/(.*)/?' : { 'class' : status },
+    r'/sleep/(.*)/?' : { 'class' : sleep }
 }
-
-def prettify_endpoints():
-	"""Turns the list of endpoints into an OrderedDict of friendlyname : description for use by /index."""
-	http_methods = ['get', 'post', 'put', 'patch'] #others?
-
-	# !!!
-	# for each endpoint, get the methods of its associated RequestHandler class that are explicitly defined in this class and are in http_methods
-	# from each of those methods, create a dictionary entry like { "METHOD /endpoint_friendly_name" : "(method's docstring)" }
-	# they end up looking like { "GET /schema": "Returns the JSON schema used to validate job submission requests." }
-	d =	{ mname.upper() + " " + endpoints[end]['friendly'][mname] : inspect.getdoc(meth)
-	         for end in endpoints
-	         for (mname, meth) in inspect.getmembers( endpoints[end]['class'], lambda m : inspect.ismethod(m)
-	                                                                                      and m.__name__ in endpoints[end]['class'].__dict__
-	                                                                                      and m.__name__ in http_methods ) }
-
-	return OrderedDict( sorted(d.items(), key=lambda t: t[0]) )
-
-#This used to be a one-liner in /index but it never changes, so why recalculate it
-friendly_endpoints = prettify_endpoints()
+pretty_endpoints = endpoints.prettify(endpoint_mapping)
 
 def main():
 	#Generate a self-signed certificate and key if we don't already have one.
 	if not os.path.isfile("cert.pem") or not os.path.isfile("key.pem"):
 		subprocess.call( 'openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days 36500 -nodes -subj'.split() + ["/C=US/ST=MA/L=Cambridge/O=Broad Institute/OU=Prometheus"] )
 
-	urls = [ (end, endpoints[end]['class']) for end in endpoints ]
+	urls = [ (end, endpoint_mapping[end]['class']) for end in endpoint_mapping ]
 	app = Application(urls, compress_response = True )
 	ili=IOLoop.instance()
 	async.io_loop=ili #set up io_loop for async executor
