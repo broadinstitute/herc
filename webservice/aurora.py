@@ -26,7 +26,7 @@ def _aurora_installed():
 			aurora_exists = False
 	return aurora_exists
 
-@async.usepool('longps')
+@async.usepool('long')
 def requestjob(jobrq):
 	"""Takes the job request object and converts it into an Aurora definition file.
 	Creates a GUID and submits the Aurora definition file to Aurora with the GUID.

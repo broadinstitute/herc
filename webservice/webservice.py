@@ -10,6 +10,7 @@ import time
 import jsonvalidate
 import aurora
 import async
+import inspect
 
 class base(RequestHandler):
 	def initialize(self):
@@ -29,19 +30,22 @@ class base(RequestHandler):
 
 class index(base):
 	def get(self):
-		d = { endpoints[end]['friendly'] : endpoints[end]['desc'] for end in endpoints }
-		self.write( json.dumps(OrderedDict(sorted(d.items(), key=lambda t: t[0])), indent=1) )
+		"""Returns the list of endpoints that this webservice provides."""
+		self.write( json.dumps(friendly_endpoints, indent=1) )
 		self.finish()
 
 class schema(base):
 	def get(self):
-		with open("data/schemas/jobsubmit.json", 'r') as schema:
-			self.write(schema.read())
+		"""Returns the JSON schema used to validate job submission requests."""
+		with open("data/schemas/jobsubmit.json", 'r') as jschema:
+			self.write(jschema.read())
 			self.finish()
 
 class submit(base):
 	@gen.coroutine
 	def post(self):
+		"""Submits a job request. Body must be JSON that validates against the JSON schema available at GET /schema. Returns a string, the job ID."""
+
 		#Validate the request against the schema. This will raise an HTTPError if it fails validation.
 		#jobrq = yield jsonvalidate.validate( self.request.body, "data/schemas/jobsubmit.json" )
 		jobid = yield aurora.requestjob(None)
@@ -59,11 +63,12 @@ class submit(base):
 
 class sleep(base):
 	@gen.coroutine
-	def get(self, secs = 0):
-		ret = yield self.sleep( int(secs) )
+	def get(self, n = 0):
+		"""Sleep for n seconds and then return."""
+		ret = yield self.sleep( int(n) )
 		self.write(ret)
 
-	@async.usepool('shortjob')
+	@async.usepool('long')
 	def sleep(self, secs):
 		then = time.time()
 		time.sleep(secs)
@@ -72,25 +77,40 @@ class sleep(base):
 endpoints = {
 	r'/' : {
 		'class' : index,
-		'friendly' : "GET /",
-	    'desc' : "This page."
+		'friendly' : { 'get' : "/" }
 	},
 	r'/schema/?' : {
 		'class' : schema,
-		'friendly' : "GET /schema",
-	    'desc' : "Returns the JSON schema used to validate job submission requests."
+		'friendly' : { 'get' : "/schema" }
 	},
 	r'/submit/?' : {
 	'class' : submit,
-	'friendly' : "POST /submit",
-	'desc' : "Submits a job request. Body must be JSON that validates against the JSON schema available at GET /schema. Returns a string, the job ID."
+	'friendly' : { 'post' : "/submit" }
 	},
     r'/sleep/(.*)/?' : {
 	'class' : sleep,
-	'friendly' : "GET /sleep/n",
-	'desc' : "Sleeps for n seconds and then return."
+	'friendly' : { 'get' : "/sleep/n" }
 	}
 }
+
+def prettify_endpoints():
+	"""Turns the list of endpoints into an OrderedDict of friendlyname : description for use by /index."""
+	http_methods = ['get', 'post', 'put', 'patch'] #others?
+
+	# !!!
+	# for each endpoint, get the methods of its associated RequestHandler class that are explicitly defined in this class and are in http_methods
+	# from each of those methods, create a dictionary entry like { "METHOD /endpoint_friendly_name" : "(method's docstring)" }
+	# they end up looking like { "GET /schema": "Returns the JSON schema used to validate job submission requests." }
+	d =	{ mname.upper() + " " + endpoints[end]['friendly'][mname] : inspect.getdoc(meth)
+	         for end in endpoints
+	         for (mname, meth) in inspect.getmembers( endpoints[end]['class'], lambda m : inspect.ismethod(m)
+	                                                                                      and m.__name__ in endpoints[end]['class'].__dict__
+	                                                                                      and m.__name__ in http_methods ) }
+
+	return OrderedDict( sorted(d.items(), key=lambda t: t[0]) )
+
+#This used to be a one-liner in /index but it never changes, so why recalculate it
+friendly_endpoints = prettify_endpoints()
 
 def main():
 	#Generate a self-signed certificate and key if we don't already have one.

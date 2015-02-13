@@ -5,9 +5,9 @@ from functools import wraps
 
 io_loop = None #set this to io_loop!
 executors = {
-				'shortjob'  : ThreadPoolExecutor(max_workers=4),
-				'longjob'   : ThreadPoolExecutor(max_workers=4),
-				'longps'    : ThreadPoolExecutor(max_workers=4)
+				'short' : ThreadPoolExecutor(max_workers=8), #For little things to avoid blocking the main thread
+				'long'  : ThreadPoolExecutor(max_workers=4), #For longer work, like file I/O
+				'aurora': ThreadPoolExecutor(max_workers=4)  #Exclusively for communicating with Aurora
 			}
 
 def usepool(executor):

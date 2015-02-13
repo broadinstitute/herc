@@ -3,7 +3,7 @@ import json
 import jsonschema
 from tornado.web import HTTPError
 
-@async.usepool('shortjob')
+@async.usepool('short')
 def validate(str, schemapath):
 	"""Take a string, load it into JSON, and validate it against the given schema.
 	Returns the validated Python dict if it validates; otherwises, raises 400 Bad Request."""
