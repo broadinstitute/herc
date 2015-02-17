@@ -46,15 +46,24 @@ AURORA_FLAGS=(
   -native_log_file_path="$AURORA_HOME/scheduler/db"
   -backup_dir="$AURORA_HOME/backups"
 
-  -thermos_executor_path=/home/jclouds/thermos/thermos_executor.sh
+  -thermos_executor_path=/home/jclouds/thermos/thermos_executor.pex
+  -thermos_executor_flags="--announcer-enable --announcer-ensemble localhost:2181"
   -gc_executor_path=/home/jclouds/thermos/gc_executor.pex
 
   -vlog=INFO
   -logtostderr
+  -allowed_container_types=MESOS,DOCKER
 )
 
 # Environment variables control the behavior of the Mesos scheduler driver (libmesos).
 export GLOG_v=0
 export LIBPROCESS_PORT=8083
 
-JAVA_OPTS="${JAVA_OPTS[*]}" exec "$AURORA_HOME/bin/aurora-scheduler" "${AURORA_FLAGS[@]}" 2>/usr/local/aurora-scheduler/aurora-scheduler.log
+#Init Mesos log db.
+echo "Initializing Mesos log database..."
+mesos-log initialize --path="$AURORA_HOME/scheduler/db"
+echo "Done. Launching Aurora..."
+
+while true; do
+    JAVA_OPTS="${JAVA_OPTS[*]}" exec "$AURORA_HOME/bin/aurora-scheduler" "${AURORA_FLAGS[@]}" 2>/usr/local/aurora-scheduler/aurora-scheduler.log
+done

@@ -44,7 +44,7 @@ EOF'
 install_prereqs
 source /etc/profile
 
-MESOS_VERSION="0.21.1"
+MESOS_VERSION="0.20.1"
 DIST_DIR=~/aurora-src/dist
 
 #Building the Aurora scheduler proper.
@@ -66,16 +66,12 @@ function build_scheduler {
   sudo chgrp -R aurora "$AURORA_HOME/"
   sudo chmod -R 775 $AURORA_HOME
   
-  #Init Mesos log db.
-  echo ""
-  echo ""
-  echo "Initializing Mesos log database."
-  mesos-log initialize --path="$AURORA_HOME/scheduler/db"
-  
+  #Let pants boostrap itself by asking it to do a no-op
+  ./pants goals
   #Install Mesos Python packages to the pants venv
   source build-support/pants.venv/bin/activate
   easy_install http://downloads.mesosphere.io/master/debian/7/mesos-${MESOS_VERSION}-py2.7-linux-x86_64.egg
-  easy_install /usr/local/lib/python2.7/dist-packages/mesos.interface-${MESOS_VERSION}-py2.7.egg
+  easy_install ~/mesos.interface-${MESOS_VERSION}-py2.7.egg
   deactivate
   popd
 }
@@ -134,15 +130,10 @@ with contextlib.closing(zipfile.ZipFile('dist/thermos_executor.pex', 'a')) as zf
   zf.write('dist/thermos_runner.pex', 'apache/aurora/executor/resources/thermos_runner.pex')
 EOF
 
-  cat <<EOF > $DIST_DIR/thermos_executor.sh
-#!/usr/bin/env bash
-exec /home/jclouds/thermos/thermos_executor.pex --announcer-enable --announcer-ensemble localhost:2181
-EOF
-  chmod +x $DIST_DIR/thermos_executor.sh
   chmod +x $DIST_DIR/thermos_executor.pex
   
   pushd $DIST_DIR
-  tar -cvf ~/thermos.tar thermos_executor.* gc_executor.pex
+  tar -cvf ~/thermos.tar thermos_executor.pex gc_executor.pex
   popd
   
   popd

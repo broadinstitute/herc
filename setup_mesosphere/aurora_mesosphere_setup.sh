@@ -15,7 +15,7 @@ shift
 echo "Copying over install files to Mesos master..."
 echo ""
 echo ""
-scp mesos.native-0.21.1-py2.7-linux-x86_64.egg aurora_install.sh aurora_install_clustersjson.sh aurora_scheduler_startup.sh aurora_startup.sh aurora_thermos_startup.sh ../jobdefs/testjob.aurora ../jobdefs/batchjob.aurora $mesosuser@$master_ip:~
+scp mesos.native-0.20.1-py2.7-linux-x86_64.egg mesos.interface-0.20.1-py2.7.egg aurora_install.sh aurora_install_clustersjson.sh aurora_scheduler_startup.sh aurora_startup.sh aurora_thermos_startup.sh ../jobdefs/testjob.aurora ../jobdefs/batchjob.aurora $mesosuser@$master_ip:~
 
 echo ""
 echo ""
@@ -41,7 +41,7 @@ echo "Copying and extracting the Thermos executor tarball to the slave nodes."
 for slave_ip in "$@"; do
 	echo "Setting up $slave_ip..."
 	scp thermos.tar $mesosuser@$slave_ip:~/thermos.tar
-	ssh $mesosuser@$slave_ip "mkdir thermos && tar -C thermos -xvf thermos.tar"
+	ssh $mesosuser@$slave_ip "mkdir thermos; tar -C thermos -xvf thermos.tar"
 	echo ""
 done
 
