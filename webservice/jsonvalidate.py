@@ -36,7 +36,6 @@ def validate(jsonstr, schemapath):
 		submitrq = jsonref.loads(jsonstr)
 		validator_fill_defaults(schema).validate(submitrq)
 		return submitrq
-
 	except TypeError:
 		raise HTTPError(400, "Not a valid JSON object.")
 	except ValueError:
