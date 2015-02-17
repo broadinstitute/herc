@@ -63,8 +63,9 @@ def requestjob(jobrq):
 	                    'task' : jr['tasks'][-1]['name'],
 						'env'  : 'devel',   #configurable?
 	                    'cluster' : 'herc', #also configurable?
-	                    'hostlimit' : 99999999
-	                    #instance and docker configuration both go here, someday
+	                    'hostlimit' : 99999999,
+	                    'container' : "Container(docker = Docker(image = 'python:2.7'))"
+	                    #instance configuration goes here, if we ever use it
 					} ]
 
 	template = env.get_template('jobtemplate.aurora')

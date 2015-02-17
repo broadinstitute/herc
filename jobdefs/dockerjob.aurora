@@ -1,0 +1,16 @@
+import os
+
+sleep = Process( name = 'sleep', cmdline = 'sleep 20' )
+echo = Process( name = 'echo', cmdline = 'echo "Hello herc!"' )
+
+test_task = SequentialTask(
+        name = 'testTask',
+        processes = [sleep, echo],
+        resources = Resources(cpu = 1, ram = 1*MB, disk=2*MB) )
+
+jobs = [Job( name='dockerJob',
+             task=test_task,
+             role=os.getenv('USER'),
+             environment='devel',
+             cluster="herc",
+             container = Container(docker = Docker(image = 'python:2.7')))]

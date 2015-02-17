@@ -37,7 +37,10 @@
                 "diskunit" : { "$ref": "#/definitions/bytesunit" }
             },
             "required": ["cpus", "mem", "disk"]
+        },
+        "docker" : {
+            "type" : "string"
         }
     },
-    "required": ["inputs", "commandline", "outputs", "resources"]
+    "required": ["inputs", "commandline", "outputs", "resources", "docker"]
 }
