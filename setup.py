@@ -19,7 +19,8 @@ setup(name='herc',
 	 'tornado>=4.0',
 	 'jsonschema',
 	 'futures',
-	 'Jinja2>=2.2'
+	 'Jinja2>=2.2',
+	 'jsonref'
 	],
 	entry_points = { 'console_scripts': [ 'herc = webservice.webservice:main' ] },
 	zip_safe=False)

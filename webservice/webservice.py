@@ -56,18 +56,10 @@ class submit(base):
 		"""POST /submit
 		Submits a job request. Body must be JSON that validates against the JSON schema available at GET /schema. Returns a string, the job ID."""
 
-		#Validate the request against the schema. This will raise an HTTPError if it fails validation.
-		#jobrq = yield jsonvalidate.validate( self.request.body, "data/schemas/jobsubmit.json" )
-		jobid = yield aurora.requestjob(None)
+		#Validate the request against the schema, filling in defaults. This will raise an HTTPError if it fails validation.
+		jobrq = yield jsonvalidate.validate( self.request.body, "data/schemas/jobsubmit.json" )
+		jobid = yield aurora.requestjob(jobrq)
 
-		#TODO:
-		#1. DONE Validate the schema
-		#2. Create the Aurora job config from the schema
-		#3. Pass it off to the Aurora job create worker
-		#4. Return "ok, it's been scheduled" (or an ID? do we create that?)
-
-		# Aurora job create worker:
-			# Might fail to create a job for some reason. In which case, return a "sry no" back on the job's ID
 		self.write(jobid)
 		self.finish()
 
