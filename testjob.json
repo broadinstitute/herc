@@ -1,5 +1,27 @@
 {
-	"inputs" : {},
-	"commandline" : "sleep 5; echo I did it!",
-	"outputs" : {}
+    "inputs" : [
+        {
+            "cloud" : "gcs://foo",
+            "local" : "/foo"
+        },
+        {
+            "cloud" : "boss://bar",
+            "local" : "/bar"
+        }
+    ],
+    "commandline" : "echo Hello herc! > /baz",
+    "docker" : "python:2.7",
+    "resources" : {
+        "cpus" : 1,
+        "mem" : 16,
+        "memunit" : "MB",
+        "disk" : 1,
+        "diskunit" : "GB"
+    },
+    "outputs" : [
+        {
+            "cloud" : "gcs://baz",
+            "local" : "/baz"
+        }
+    ]
 }

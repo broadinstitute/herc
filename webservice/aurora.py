@@ -34,27 +34,37 @@ def requestjob(jobrq):
 	Creates a GUID and submits the Aurora definition file to Aurora with the GUID.
 	"""
 
+	#create a GUID for this job.
 	jobid = "job_" + str(uuid.uuid4()).replace('-', '_')
 
+	#the job request we'll pass to jinja to fill in the template .aurora file with
 	jr = dict()
 
-	#processes list made of command lines
-	#the final version of this is probably going to look something like:
-	# 1. foreach input in jobrq['inputs']: download_from_gcs.py input inputs[input]
-	# 2. run a command line
-	# 3. foreach output in jobrq['outputs']: upload_to_gcs.py output outputs[output]
-	jr['processes'] = [ { 'name' : 'foo_ps', 'cmd' : 'echo bar' } ]
+	#processes to localize down from the "inputs" part of the schema
+	downloads = [ { 'name' : "locdown_"+str(idx),
+	                'cmd'  : 'echo localize "' + path['cloud'] + '" "' + path['local'] + '">>localize' }
+	              for (idx, path) in enumerate(jobrq['inputs']) ]
 
-	#construct the task list in order, such that the last task is the (single) task to run from the job.
-	#there's currently no space in the template to do Tasks.combine() or Tasks.concat().
-	jr['tasks'] = [ {   'name' : 'foo_task',
+	#processes to localize back up to the cloud from the "outputs" part of the schema
+	uploads = [ { 'name' : "locup_"+str(idx),
+	              'cmd'  : 'echo localize "' + path['local'] + '" "' + path['cloud'] + '">>localize' }
+	            for (idx, path) in enumerate(jobrq['outputs']) ]
+
+	#list of processes: download, run the commandline, upload
+	jr['processes'] = downloads + [{ 'name' : jobid +'_ps', 'cmd' : jobrq['commandline'] }] + uploads
+
+	#Currently all we need is one task, made of the list of download + run + upload processes.
+	#We don't (yet?) need to do anything clever with Tasks.concat() or combine(), and the template doesn't support it.
+	#The last task in this list will be used as the task to run on the job, so if we ever do use Tasks.concat() or
+	#combine(), that should be the final task in this list.
+	jr['tasks'] = [ {   'name' : jobid+'_task',
 	                    'type' : 'SequentialTask',
 	                    'processes' : map( lambda p : p['name'], jr['processes'] ),
-	                    'cpus' : 1,
-	                    'mem'  : 1,
-	                    'memunit' : "GB",
-	                    'disk' : 2,
-	                    'diskunit' : "MB"
+	                    'cpus' : jobrq['resources']['cpus'],
+	                    'mem'  : jobrq['resources']['mem'],
+	                    'memunit' : jobrq['resources']['memunit'],
+	                    'disk' : jobrq['resources']['disk'],
+	                    'diskunit' : jobrq['resources']['diskunit']
 	                } ]
 
 	#as above: we assume the tasks list has been constructed such that the last task
@@ -63,12 +73,12 @@ def requestjob(jobrq):
 	                    'task' : jr['tasks'][-1]['name'],
 						'env'  : 'devel',   #configurable?
 	                    'cluster' : 'herc', #also configurable?
-	                    'hostlimit' : 99999999
-	                    #instance and docker configuration both go here, someday
+	                    'hostlimit' : 99999999,
+	                    'container' : jobrq['docker']
+	                    #instance configuration goes here, if we ever use it
 					} ]
 
 	template = env.get_template('jobtemplate.aurora')
-
 	tmpfile = tempfile.NamedTemporaryFile(suffix=".aurora")
 
 	#might error.
@@ -82,6 +92,8 @@ def requestjob(jobrq):
 		then = time.time()
 		subprocess.call( ['aurora', 'job', 'create', 'herc/jclouds/devel/' + jobid, tmpfile.name] )
 		auroratime = time.time() - then
+
+	print template.render(jr)
 
 	#don't do this until after the job is submitted
 	tmpfile.close()
