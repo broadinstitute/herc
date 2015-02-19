@@ -15,6 +15,7 @@ env = Environment(loader=loader, trim_blocks=True, lstrip_blocks=True)
 aurora_checked = False
 aurora_exists = True
 def _aurora_installed():
+	"""Utility method so we can return stub results for an installation of Herc that's not actually connected to Aurora."""
 	global aurora_checked
 	global aurora_exists
 
@@ -28,16 +29,10 @@ def _aurora_installed():
 			aurora_exists = False
 	return aurora_exists
 
-@async.usepool('aurora')
-def requestjob(jobrq):
-	"""Takes the job request object and converts it into an Aurora definition file.
-	Creates a GUID and submits the Aurora definition file to Aurora with the GUID.
-	"""
+def build_jinja_dict(jobid, jobrq):
+	"""Takes an ID and job request object and converts it into a Python object for passing to Jinja."""
 
-	#create a GUID for this job.
-	jobid = "job_" + str(uuid.uuid4()).replace('-', '_')
-
-	#the job request we'll pass to jinja to fill in the template .aurora file with
+	#the job request we're going to fill in
 	jr = dict()
 
 	#processes to localize down from the "inputs" part of the schema
@@ -71,12 +66,25 @@ def requestjob(jobrq):
 	#in the list is the one we want to execute for this job.
 	jr['jobs'] = [ {    'name' : jobid,
 	                    'task' : jr['tasks'][-1]['name'],
-						'env'  : 'devel',   #configurable?
+	                    'env'  : 'devel',   #configurable?
 	                    'cluster' : 'herc', #also configurable?
 	                    'hostlimit' : 99999999,
 	                    'container' : jobrq['docker']
 	                    #instance configuration goes here, if we ever use it
-					} ]
+	               } ]
+
+	return jr
+
+@async.usepool('aurora')
+def requestjob(jobrq):
+	"""Takes the job request object and converts it into an Aurora definition file.
+	Creates a GUID and submits the Aurora definition file to Aurora with the GUID.
+	"""
+
+	#create a GUID for this job.
+	jobid = "job_" + str(uuid.uuid4()).replace('-', '_')
+
+	jr = build_jinja_dict(jobid, jobrq)
 
 	template = env.get_template('jobtemplate.aurora')
 	tmpfile = tempfile.NamedTemporaryFile(suffix=".aurora")
