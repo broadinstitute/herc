@@ -10,7 +10,7 @@ setup(name='herc',
 	long_description=readme(),
 	url='http://github.com/broadinstitute/herc',
 	author='Broad Institute',
-	packages=find_packages(),
+	packages=find_packages(exclude='tests'),
 	package_data = {
 		# Include everything in data/, both schemas and examples.
 		'': ['data/*']
@@ -23,4 +23,7 @@ setup(name='herc',
 	 'jsonref'
 	],
 	entry_points = { 'console_scripts': [ 'herc = webservice.webservice:main' ] },
-	zip_safe=False)
+	zip_safe=False,
+	test_suite='nose.collector',
+	tests_require=['nose']
+)

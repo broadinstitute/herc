@@ -1,0 +1,25 @@
+{
+    "inputs" : [
+        {
+            "cloud" : "gcs://foo",
+            "local" : "/foo"
+        },
+        {
+            "cloud" : "boss://bar",
+            "local" : "/bar"
+        }
+    ],
+    "commandline" : "echo Hello herc! > /baz",
+    "docker" : "python:2.7",
+    "resources" : {
+        "cpus" : 1,
+        "mem" : 16,
+        "disk" : 1
+    },
+    "outputs" : [
+        {
+            "cloud" : "gcs://baz",
+            "local" : "/baz"
+        }
+    ]
+}
