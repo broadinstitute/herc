@@ -53,7 +53,7 @@ At the time of writing, the endpoints are:
 * `GET /status/<jobid>` Query Aurora and return the status of the job id. 404 if not found, otherwise will return JSON with the job's current status and the time it entered that status.
 * `GET /sleep/<n>` Test endpoint that keeps the connection open for n seconds and then returns how long it was open for.
 
-More information on the JSON for the `/submit` endpoint is [here](data/schemas/README.md). 
+A deeper dive into the API is available over on the [wiki](../../wiki/API). 
 
 ## Watching it go
 
