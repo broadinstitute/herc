@@ -10,6 +10,7 @@ import jsonvalidate
 import aurora
 import async
 import endpoints
+import ssl
 
 class base(RequestHandler):
 	def initialize(self):
@@ -97,18 +98,18 @@ pretty_endpoints = endpoints.prettify(endpoint_mapping)
 
 def main():
 	#Generate a self-signed certificate and key if we don't already have one.
-	if not os.path.isfile("cert.pem") or not os.path.isfile("key.pem"):
-		subprocess.call( 'openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days 36500 -nodes -subj'.split() + ["/C=US/ST=MA/L=Cambridge/O=Broad Institute/OU=Prometheus"] )
+	if not os.path.isfile("herc.crt") or not os.path.isfile("herc.key"):
+		subprocess.call( 'openssl req -x509 -newkey rsa:2048 -keyout herc.key -out herc.crt -days 36500 -nodes -subj'.split() + ["/C=US/ST=MA/L=Cambridge/O=Broad Institute/OU=Prometheus"] )
 
 	urls = [ (end, endpoint_mapping[end]['class']) for end in endpoint_mapping ]
 	app = Application(urls, compress_response = True )
 	ili=IOLoop.instance()
 	async.io_loop=ili #set up io_loop for async executor
+
 	http_server = httpserver.HTTPServer(app,
 	                                    ssl_options={
-	                                    "certfile": "cert.pem",
-	                                    "keyfile": "key.pem"
-	                                    },
+	                                    "certfile": "herc.crt",
+	                                    "keyfile": "herc.key"	                                    },
 	                                    io_loop=ili )
 	http_server.listen(4372)
 
