@@ -108,6 +108,42 @@ def requestjob(jobrq):
 
 	return jobid
 
+#States that Aurora considers terminal (but may end up rescheduled).
+TERMINAL_STATES = ["LOST", "FINISHED", "FAILED", "KILLED"]
+
+#If an Aurora job passes through one of these states, it will always be rescheduled.
+RESCHEDULE_STATES = ["RESTARTING", "DRAINING", "PREEMPTING"]
+
+#Additional state we add on top of Aurora's to indicate that a job is Aurora-terminal
+#but will be cloned and rescheduled shortly.
+RESCHEDULED_STATUS = "RESCHEDULED"
+
+def determine_true_status(jobstatus):
+	"""Aurora's definition of "terminal state" differs to ours.
+	For instance, a job that gets LOST will typically get rescheduled.
+	This function takes a job status object and avoids returning a terminal status if it'll be rescheduled."""
+	status = jobstatus['status']
+	statuslist = [ evt['status'] for evt in jobstatus['taskEvents'] ]
+	if status not in TERMINAL_STATES:
+		#Job is still in progress.
+		return status
+	elif any( [ x in RESCHEDULE_STATES for x in statuslist ] ):
+		#Job is in a terminal state but will be rescheduled.
+		#We should hit this rarely as the new task is created (and should therefore go active)
+		#at the same time we transition from RESCHEDULE_STATES to TERMINAL_STATES
+		return "RESCHEDULED"
+	elif status == "LOST" and "KILLING" not in statuslist:
+		#Job got lost during normal operation and will therefore be rescheduled.
+		return "RESCHEDULED"
+	elif "KILLING" in statuslist:
+		#User requested this job was killed. It may actually have ended up in any of TERMINAL_STATES, but it
+		#won't be rescheduled, so for simplicity we can hide this to users and pretend it was killed successfully.
+		return "KILLED"
+	else:
+		#Job is terminal, wasn't killed, and won't be rescheduled. Report its status truthfully.
+		return status
+
+
 @async.usepool('aurora')
 def status(jobid):
 	"""Return the status of this job ID on Aurora.
@@ -130,15 +166,14 @@ def status(jobid):
 			# example json is in data/example_aurora_jobstatus.json
 			jobresult = jobresult[0]
 
-			#Assuming unique IDs per job, the length of these two arrays will usually sum to 1.
-			#However, Aurora will retry LOST jobs, and may kill and reschedule jobs for host maintenance or job pre-emption.
-			#See https://broadinstitute.atlassian.net/browse/DSDEES-21
-			jobruns = jobresult['active'] + jobresult['inactive']
+			#Sort inactive jobs in order of most recent submission time.
+			#This catches the issue where a job gets rescheduled but the first run doesn't progress to a terminal state until after the second completes.
+			jobruns = jobresult['active'] + sorted( jobresult['inactive'], key = lambda elem : elem['taskEvents'][0]['timestamp'], reverse = True )
 
-			lastrun = jobruns[0]
+			laststatus = jobruns[0]
 
-			output['status'] = lastrun['status']
-			output['time'] = lastrun['taskEvents'][-1]['timestamp']
+			output['status'] = determine_true_status(laststatus)
+			output['time'] = laststatus['taskEvents'][-1]['timestamp']
 	else:
 		output['status'] = 'FINISHED'
 		output['time'] = int(time.time()*1000) #aurora returns unixtime ms so we should too
