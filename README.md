@@ -17,7 +17,7 @@ From the machine that you gave Mesosphere the ssh_keys for:
 
 ```
 $ git clone git@github.com:broadinstitute/herc.git
-$ cd mesosphere_setup
+$ cd setup_mesosphere
 
 # use the External IPs listed in your Mesosphere cluster's page.
 $ ./aurora_mesosphere_setup.sh master_ip slave1_ip slave2_ip slave3_ip ... slaveN_ip
