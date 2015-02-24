@@ -7,6 +7,7 @@ import subprocess
 import os
 import time
 import json
+import re
 from tornado.web import HTTPError
 
 loader = FileSystemLoader('jobdefs')
@@ -121,27 +122,44 @@ RESCHEDULED_STATUS = "RESCHEDULED"
 def determine_true_status(jobstatus):
 	"""Aurora's definition of "terminal state" differs to ours.
 	For instance, a job that gets LOST will typically get rescheduled.
-	This function takes a job status object and avoids returning a terminal status if it'll be rescheduled."""
+	This function takes a job status object and avoids returning a terminal status if it'll be rescheduled.
+	It returns a tuple of ("STATUS", { additional_dict }), the latter being extra fields to dump in the output."""
 	status = jobstatus['status']
 	statuslist = [ evt['status'] for evt in jobstatus['taskEvents'] ]
 	if status not in TERMINAL_STATES:
 		#Job is still in progress.
-		return status
+		return status, {}
 	elif any( [ x in RESCHEDULE_STATES for x in statuslist ] ):
 		#Job is in a terminal state but will be rescheduled.
 		#We should hit this rarely as the new task is created (and should therefore go active)
 		#at the same time we transition from RESCHEDULE_STATES to TERMINAL_STATES
-		return "RESCHEDULED"
+		return "RESCHEDULED", {}
 	elif status == "LOST" and "KILLING" not in statuslist:
 		#Job got lost during normal operation and will therefore be rescheduled.
-		return "RESCHEDULED"
+		return "RESCHEDULED", {}
 	elif "KILLING" in statuslist:
 		#User requested this job was killed. It may actually have ended up in any of TERMINAL_STATES, but it
 		#won't be rescheduled, so for simplicity we can hide this to users and pretend it was killed successfully.
-		return "KILLED"
+		return "KILLED", {}
+	elif "FAILED" in statuslist:
+		#Might have failed because it went over disk or mem limit. Inspect the message.
+		failidx = statuslist.index("FAILED")
+		failevt = jobstatus['taskEvents'][failidx]
+		if failevt['message'].startswith("Memory limit exceeded"):
+			#Over memory.
+			matches = re.findall(r"Memory limit exceeded: Requested (\S+), Used (\S+).", failevt['message'])
+			assert len(matches) > 0
+			return "MEM_EXCEEDED", { 'requested' : matches[0][0], 'used' : matches[0][1] }
+		elif failevt['message'].startswith("Disk limit exceeded"):
+			#Over disk.
+			matches = re.findall(r"Disk limit exceeded.  Reserved (\S+) bytes vs used (\S+) bytes.", failevt['message'])
+			assert len(matches) > 0
+			return "DISK_EXCEEDED", { 'requested' : matches[0][0] + "BYTES", 'used' : matches[0][1] + "BYTES" }
+		else:
+			return status, {}
 	else:
 		#Job is terminal, wasn't killed, and won't be rescheduled. Report its status truthfully.
-		return status
+		return status, {}
 
 
 @async.usepool('aurora')
@@ -172,8 +190,9 @@ def status(jobid):
 
 			laststatus = jobruns[0]
 
-			output['status'] = determine_true_status(laststatus)
+			output['status'], extradict = determine_true_status(laststatus)
 			output['time'] = laststatus['taskEvents'][-1]['timestamp']
+			output.update(extradict)
 	else:
 		output['status'] = 'FINISHED'
 		output['time'] = int(time.time()*1000) #aurora returns unixtime ms so we should too
