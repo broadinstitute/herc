@@ -7,7 +7,7 @@
 
 herc uses [Apache Aurora](http://aurora.incubator.apache.org/) to schedule jobs running on an [Apache Mesos](http://mesos.apache.org/) cluster.
 
-The full documentation is in the [docs](docs/Home) folder; this is just a quick overview.
+The full documentation is in the [docs](docs/Home.md) folder; this is just a quick overview.
 
 ## Setting up Mesosphere
 
@@ -55,7 +55,7 @@ At the time of writing, the endpoints are:
 * `GET /status/<jobid>` Query Aurora and return the status of the job id. 404 if not found, otherwise will return JSON with the job's current status and the time it entered that status.
 * `GET /sleep/<n>` Test endpoint that keeps the connection open for n seconds and then returns how long it was open for.
 
-A deeper dive into the API is available [here](docs/API). 
+A deeper dive into the API is available [here](docs/API.md). 
 
 ## Watching it go
 
