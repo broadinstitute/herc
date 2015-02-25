@@ -23,7 +23,7 @@ setup(name='herc',
           'Jinja2>=2.2',
           'jsonref'
       ],
-      entry_points={'console_scripts': ['herc = webservice.webservice:main']},
+      entry_points={'console_scripts': ['herc = herc.webservice:main']},
       zip_safe=False,
       test_suite='nose.collector',
       tests_require=['nose']

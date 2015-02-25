@@ -1,6 +1,6 @@
 import tornado.testing
 from tornado.web import HTTPError
-import webservice.jsonvalidate as jsonvalidate
+import herc.jsonvalidate as jsonvalidate
 import json
 
 def get_str(path):

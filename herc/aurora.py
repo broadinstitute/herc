@@ -1,6 +1,6 @@
 from jinja2 import FileSystemLoader
 from jinja2 import Environment
-import async
+import herc.async
 import tempfile
 import uuid
 import subprocess
@@ -16,7 +16,6 @@ env = Environment(loader=loader, trim_blocks=True, lstrip_blocks=True)
 aurora_checked = False
 aurora_exists = True
 
-
 def _aurora_installed():
     """Utility method so we can return stub results for an installation of Herc that's not actually connected to Aurora."""
     global aurora_checked
@@ -25,7 +24,8 @@ def _aurora_installed():
     if not aurora_checked:
         aurora_checked = True
         try:
-            subprocess.call(["aurora"])
+            with open('/dev/null', 'w') as null:
+                subprocess.call(["aurora"], stdout=null, stderr=null)
             aurora_exists = True
         except OSError:
             print "WARNING: aurora not installed, aurora endpoints will return dummy values"
@@ -80,7 +80,7 @@ def build_jinja_dict(jobid, jobrq):
     return jr
 
 
-@async.usepool('aurora')
+@herc.async.usepool('aurora')
 def requestjob(jobrq):
     """Takes the job request object and converts it into an Aurora definition file.
     Creates a GUID and submits the Aurora definition file to Aurora with the GUID.
@@ -167,7 +167,7 @@ def determine_true_status(jobstatus):
         return status, {}
 
 
-@async.usepool('aurora')
+@herc.async.usepool('aurora')
 def status(jobid):
     """Return the status of this job ID on Aurora.
     See the Aurora code for a full list of statuses:
