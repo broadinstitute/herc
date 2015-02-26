@@ -2,7 +2,7 @@
 
 This file gives more details on the Herc API.
 
-Examples are given with (cURL)[http://curl.haxx.se/docs/] and (HTTPie)[https://github.com/jakubroztocil/httpie], assuming the server is running on `localhost:4372` with self-signed certificates (i.e. do not try to verify SSL certificates)
+Examples are given with [cURL](http://curl.haxx.se/docs/) and [HTTPie](https://github.com/jakubroztocil/httpie), assuming the server is running on `localhost:4372` with self-signed certificates (i.e. do not try to verify SSL certificates)
 
 ## `GET /`
 
