@@ -6,6 +6,29 @@ This file gives more details on the Herc API.
 
 Returns a list of endpoints and brief descriptions. This is always accurate; the document you're reading now may not be!
 
+`http --verify=no https://localhost:4372/`
+
+```http
+HTTP/1.1 200 OK
+Access-Control-Allow-Credentials: true
+Access-Control-Allow-Origin: *
+Content-Encoding: gzip
+Content-Length: 331
+Content-Type: application/json
+Date: Thu, 26 Feb 2015 15:33:37 GMT
+Etag: "1a5eae502514465d016ec0e4f63ced4e52ef348c"
+Server: TornadoServer/4.1
+Vary: Accept-Encoding
+
+{
+    "GET /": "Returns the list of endpoints that this webservice provides.",
+    "GET /schema": "Returns the JSON schema used to validate job submission requests.",
+    "GET /sleep/<n>": "Sleep for n seconds and then return.",
+    "GET /status/<jobid>": "Query Aurora and return the status of this job. 404 if not found, otherwise will return JSON with the job's current status and the time it entered that status.",
+    "POST /submit": "Submits a job request. Body must be JSON that validates against the JSON schema available at GET /schema. Returns a string, the job ID."
+}
+```
+
 ## `GET /schema`
 
 Returns the JSON schema used to validate job submissions sent to `GET /submit`.
