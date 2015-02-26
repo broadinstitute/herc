@@ -115,10 +115,13 @@ def main():
     parser.add_argument(
         '-D', '--debug', required=False, default=False, action='store_true', help='Run server in foreground'
     )
+    parser.add_argument(
+        '-p', '--port', default=4372, help='Server TCP port'
+    )
     cli = parser.parse_args()
 
     if cli.debug:
-        print('Started Herc in DEBUG mode')
+        print('Started Herc in DEBUG mode (port {0})'.format(cli.port))
         from tornado.log import enable_pretty_logging
         enable_pretty_logging()
 
@@ -136,7 +139,7 @@ def main():
                                             "certfile": "herc.crt",
                                             "keyfile": "herc.key"},
                                         io_loop=ili)
-    http_server.listen(4372)
+    http_server.listen(cli.port)
 
     # Trigger a callback that does nothing every half-second so KeyboardInterrupts can actually get through
     PeriodicCallback(lambda: None, 500, ili).start()
