@@ -2,14 +2,15 @@ from tornado.ioloop import IOLoop, PeriodicCallback
 from tornado.web import RequestHandler, Application
 from tornado import gen
 from tornado import httpserver
+import argparse
 import os.path
 import subprocess
 import json
 import time
-import jsonvalidate
-import aurora
-import async
-import endpoints
+import herc.async as async
+import herc.jsonvalidate as jsonvalidate
+import herc.aurora as aurora
+import herc.endpoints as endpoints
 import ssl
 
 
@@ -110,12 +111,23 @@ pretty_endpoints = endpoints.prettify(endpoint_mapping)
 
 
 def main():
+    parser = argparse.ArgumentParser(description='Herc', epilog='The Broad Institute')
+    parser.add_argument(
+        '-D', '--debug', required=False, default=False, action='store_true', help='Run server in foreground'
+    )
+    cli = parser.parse_args()
+
+    if cli.debug:
+        print('Started Herc in DEBUG mode')
+        from tornado.log import enable_pretty_logging
+        enable_pretty_logging()
+
     # Generate a self-signed certificate and key if we don't already have one.
     if not os.path.isfile("herc.crt") or not os.path.isfile("herc.key"):
         subprocess.call('openssl req -x509 -newkey rsa:2048 -keyout herc.key -out herc.crt -days 36500 -nodes -subj'.split() + ["/C=US/ST=MA/L=Cambridge/O=Broad Institute/OU=Prometheus"])
 
     urls = [(end, endpoint_mapping[end]['class']) for end in endpoint_mapping]
-    app = Application(urls, compress_response=True)
+    app = Application(urls, compress_response=True, debug=cli.debug)
     ili = IOLoop.instance()
     async.io_loop = ili  # set up io_loop for async executor
 

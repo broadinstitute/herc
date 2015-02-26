@@ -1,6 +1,6 @@
 from unittest import TestCase
 import jinja_dicts
-import webservice.aurora as aurora
+import herc.aurora as aurora
 import json
 
 class TestAurora(TestCase):

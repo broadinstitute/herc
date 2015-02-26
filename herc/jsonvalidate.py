@@ -1,4 +1,4 @@
-import async
+import herc.async as async
 import jsonref
 import jsonschema
 from tornado.web import HTTPError

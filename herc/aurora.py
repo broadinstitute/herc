@@ -1,6 +1,6 @@
 from jinja2 import FileSystemLoader
 from jinja2 import Environment
-import async
+import herc.async as async
 import tempfile
 import uuid
 import subprocess
@@ -16,7 +16,6 @@ env = Environment(loader=loader, trim_blocks=True, lstrip_blocks=True)
 aurora_checked = False
 aurora_exists = True
 
-
 def _aurora_installed():
     """Utility method so we can return stub results for an installation of Herc that's not actually connected to Aurora."""
     global aurora_checked
@@ -25,7 +24,8 @@ def _aurora_installed():
     if not aurora_checked:
         aurora_checked = True
         try:
-            subprocess.call(["aurora"])
+            with open('/dev/null', 'w') as null:
+                subprocess.call(["aurora"], stdout=null, stderr=null)
             aurora_exists = True
         except OSError:
             print "WARNING: aurora not installed, aurora endpoints will return dummy values"

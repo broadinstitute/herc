@@ -39,6 +39,8 @@ $ python setup.py develop
 $ screen -mdS herc bash -c 'source ve_herc/bin/activate && herc'
 ```
 
+For foreground operation with debug logging to stdout, run herc as: `herc --debug`
+
 ## API
 
 The full list of endpoints provided by herc are always available at:
