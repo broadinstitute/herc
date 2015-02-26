@@ -7,10 +7,10 @@ def readme():
 
 setup(name='herc',
       version='0.1',
-      description='herc is a webservice that dispatches jobs to Apache Aurora.',
+      description='Herc is a webservice that dispatches jobs to Apache Aurora.',
       long_description=readme(),
       url='http://github.com/broadinstitute/herc',
-      author='Broad Institute',
+      author='The Broad Institute',
       packages=find_packages(exclude='tests'),
       package_data={
           # Include everything in data/, both schemas and examples.
