@@ -160,7 +160,9 @@ Date: Thu, 26 Feb 2015 15:54:03 GMT
 Server: TornadoServer/4.1
 Vary: Accept-Encoding
 
-job_795aca97_8678_4af7_ade1_e4fadd7bff78
+{
+    "job_id": "job_d46ce9fd_325c_4f32_a287_c36b790fa9ff"
+}
 ```
 
 ## `GET /status/<jobid>`
