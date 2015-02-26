@@ -1,6 +1,6 @@
 from jinja2 import FileSystemLoader
 from jinja2 import Environment
-import herc.async
+import herc.async as async
 import tempfile
 import uuid
 import subprocess
@@ -80,7 +80,7 @@ def build_jinja_dict(jobid, jobrq):
     return jr
 
 
-@herc.async.usepool('aurora')
+@async.usepool('aurora')
 def requestjob(jobrq):
     """Takes the job request object and converts it into an Aurora definition file.
     Creates a GUID and submits the Aurora definition file to Aurora with the GUID.
@@ -167,7 +167,7 @@ def determine_true_status(jobstatus):
         return status, {}
 
 
-@herc.async.usepool('aurora')
+@async.usepool('aurora')
 def status(jobid):
     """Return the status of this job ID on Aurora.
     See the Aurora code for a full list of statuses:

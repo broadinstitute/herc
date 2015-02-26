@@ -1,4 +1,4 @@
-import herc.async
+import herc.async as async
 import jsonref
 import jsonschema
 from tornado.web import HTTPError
@@ -22,7 +22,7 @@ def extend_with_default(validator_class):
 validator_fill_defaults = extend_with_default(jsonschema.Draft4Validator)
 
 
-@herc.async.usepool('short')
+@async.usepool('short')
 def validate(jsonstr, schemapath):
     """Take a string, load it into JSON, and validate it against the given schema.
     Returns the validated Python dict if it validates; otherwises, raises 400 Bad Request."""

@@ -7,10 +7,10 @@ import os.path
 import subprocess
 import json
 import time
-import herc.jsonvalidate
-import herc.aurora
-import herc.async
-import herc.endpoints
+import herc.async as async
+import herc.jsonvalidate as jsonvalidate
+import herc.aurora as aurora
+import herc.endpoints as endpoints
 import ssl
 
 
@@ -67,8 +67,8 @@ class submit(base):
         Submits a job request. Body must be JSON that validates against the JSON schema available at GET /schema. Returns a string, the job ID."""
 
         # Validate the request against the schema, filling in defaults. This will raise an HTTPError if it fails validation.
-        jobrq = yield herc.jsonvalidate.validate(self.request.body, "data/schemas/jobsubmit.json")
-        jobid = yield herc.aurora.requestjob(jobrq)
+        jobrq = yield jsonvalidate.validate(self.request.body, "data/schemas/jobsubmit.json")
+        jobid = yield aurora.requestjob(jobrq)
 
         self.write(jobid)
         self.finish()
@@ -80,7 +80,7 @@ class status(base):
     def get(self, jobid):
         """GET /status/<jobid>
         Query Aurora and return the status of this job. 404 if not found, otherwise will return JSON with the job's current status and the time it entered that status."""
-        status = yield herc.aurora.status(jobid)
+        status = yield aurora.status(jobid)
         self.write(json.dumps(status, indent=1))
         self.finish()
 
@@ -94,7 +94,7 @@ class sleep(base):
         ret = yield self.sleep(int(n))
         self.write(ret)
 
-    @herc.async.usepool('long')
+    @async.usepool('long')
     def sleep(self, secs):
         then = time.time()
         time.sleep(secs)
@@ -107,7 +107,7 @@ endpoint_mapping = {
     r'/status/(.*)/?': {'class': status},
     r'/sleep/(.*)/?': {'class': sleep}
 }
-pretty_endpoints = herc.endpoints.prettify(endpoint_mapping)
+pretty_endpoints = endpoints.prettify(endpoint_mapping)
 
 
 def main():
@@ -129,7 +129,7 @@ def main():
     urls = [(end, endpoint_mapping[end]['class']) for end in endpoint_mapping]
     app = Application(urls, compress_response=True, debug=cli.debug)
     ili = IOLoop.instance()
-    herc.async.io_loop = ili  # set up io_loop for async executor
+    async.io_loop = ili  # set up io_loop for async executor
 
     http_server = httpserver.HTTPServer(app,
                                         ssl_options={
