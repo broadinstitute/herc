@@ -8,6 +8,8 @@ Examples are given with [cURL](http://curl.haxx.se/docs/) and [HTTPie](https://g
 
 Returns a list of endpoints and brief descriptions. This is always accurate; the document you're reading now may not be!
 
+### Example
+
 HTTPie:
 ```bash
 $ http --verify=no https://localhost:4372/
@@ -43,6 +45,8 @@ Vary: Accept-Encoding
 ## `GET /schema`
 
 Returns the [JSON schema](http://json-schema.org/) used to validate job submissions sent to `GET /submit`.
+
+### Example
 
 HTTPie:
 ```bash
@@ -117,6 +121,23 @@ Below is an example payload:
 }
 ```
 
+##### `inputs`
+A list of input files to localize. (If you don't have any, just pass an empty list.) You can have as many of these as you like. The values for `cloud` must be either `gcs://` or `boss://` file paths. The values for `local` must be local file paths.
+
+#####`commandline`
+The command line to run inside the docker.
+
+#####`docker`
+The docker image to pull and spin up. **This docker image must have Python 2.7 installed, or the Aurora executor won't be able to run.**
+
+#####`resources`
+The list of Mesos resources to request for this task. `cpus`, `mem`, and `disk` are mandatory; `memunit` and `diskunit` are optional and will be set to `"MB"` if you don't specify them.
+
+#####`outputs`
+A list of files to upload back to the cloud after the work is done. The value for `cloud` must be a `gcs://` file path (`boss://` isn't supported for upload).
+
+### Example
+
 HTTPie:
 ```bash
 $ http --verify=no POST https://localhost:4372/submit @testjob.json
@@ -142,21 +163,6 @@ Vary: Accept-Encoding
 job_795aca97_8678_4af7_ade1_e4fadd7bff78
 ```
 
-##### `inputs`
-A list of input files to localize. (If you don't have any, just pass an empty list.) You can have as many of these as you like. The values for `cloud` must be either `gcs://` or `boss://` file paths. The values for `local` must be local file paths.
-
-#####`commandline`
-The command line to run inside the docker.
-
-#####`docker`
-The docker image to pull and spin up. **This docker image must have Python 2.7 installed, or the Aurora executor won't be able to run.**
-
-#####`resources`
-The list of Mesos resources to request for this task. `cpus`, `mem`, and `disk` are mandatory; `memunit` and `diskunit` are optional and will be set to `"MB"` if you don't specify them.
-
-#####`outputs`
-A list of files to upload back to the cloud after the work is done. The value for `cloud` must be a `gcs://` file path (`boss://` isn't supported for upload).
-
 ## `GET /status/<jobid>`
 
 Query Aurora and return the status of the job id. Will return HTTP 404 if not found, otherwise will return JSON with the job's current status and the time it entered that status.
@@ -167,6 +173,38 @@ Because Aurora's definition of "terminal states" doesn't preclude a job being re
 * `RESCHEDULED` is a non-terminal state added by Herc that indicates Aurora is in the process of rescheduling a job. This can happen when a job gets lost, pre-empted by a higher priority job, or the node it was running on is put into maintenance.
 * `MEM_EXCEEDED` and `DISK_EXCEEDED` are terminal states that indicate the job failed because it exceeded the amount of memory or disk it requested in its Resources struct. In this case the JSON payload will contain two additional fields, `requested` and `used`; the values of both are strings, e.g. `128MB` or `3145728BYTES`.
 * `KILLED` exclusively means "killed on request by a user or admin". It will be returned even if the job completes, fails, or gets lost before or during the execution of the kill request.
+
+### Example
+
+HTTPie:
+```bash
+$ http --verify=no https://localhost:4372/status/job_795aca97_8678_4af7_ade1_e4fadd7bff78
+```
+
+cURL:
+```bash
+$ curl --insecure https://localhost:4372/status/job_795aca97_8678_4af7_ade1_e4fadd7bff78
+```
+
+Response:
+```http
+HTTP/1.1 200 OK
+Access-Control-Allow-Credentials: true
+Access-Control-Allow-Origin: *
+Content-Encoding: gzip
+Content-Length: 115
+Content-Type: application/json
+Date: Thu, 26 Feb 2015 16:11:32 GMT
+Etag: "6965df488267a089cf5b2e245bb38d33c4628551"
+Server: TornadoServer/4.1
+Vary: Accept-Encoding
+
+{
+    "jobid": "job_795aca97_8678_4af7_ade1_e4fadd7bff78",
+    "status": "PENDING",
+    "time": 1424966044800
+}
+```
 
 ## `GET /sleep/<n>`
 
