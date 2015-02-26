@@ -2,7 +2,7 @@
 
 This file gives more details on the Herc API.
 
-Examples are given with [cURL](http://curl.haxx.se/docs/) and [HTTPie](https://github.com/jakubroztocil/httpie), assuming the server is running on `localhost:4372` with self-signed certificates (i.e. do not try to verify SSL certificates)
+Examples are given with [cURL](http://curl.haxx.se/docs/) and [HTTPie](https://github.com/jakubroztocil/httpie), assuming the server is running on `localhost:4372` with self-signed certificates (i.e. do not try to verify SSL certificates).  Some of the HTTP request output may be truncated due to length.
 
 ## `GET /`
 
@@ -42,7 +42,42 @@ Vary: Accept-Encoding
 
 ## `GET /schema`
 
-Returns the JSON schema used to validate job submissions sent to `GET /submit`.
+Returns the [JSON schema](http://json-schema.org/) used to validate job submissions sent to `GET /submit`.
+
+HTTPie:
+```bash
+$ http --verify=no https://localhost:4372/schema
+```
+
+cURL:
+```bash
+$ curl -i --insecure https://localhost:4372/schema
+```
+
+Response:
+```http
+HTTP/1.1 200 OK
+Access-Control-Allow-Credentials: true
+Access-Control-Allow-Origin: *
+Content-Encoding: gzip
+Content-Length: 452
+Content-Type: application/json
+Date: Thu, 26 Feb 2015 15:42:07 GMT
+Etag: "ac88412bb1f830bdcb1333b017a574706a220ac0"
+Server: TornadoServer/4.1
+Vary: Accept-Encoding
+
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "definitions": {
+        "bytesunit": {
+            "default": "MB",
+            "pattern": "^BYTES|^KB|^MB|^GB|^TB",
+            "type": "string"
+        },
+    ... truncated ...
+}
+```
 
 ## `POST /submit`
 
@@ -80,6 +115,31 @@ Below is an example payload:
         }
     ]
 }
+```
+
+HTTPie:
+```bash
+$ http --verify=no POST https://localhost:4372/submit @testjob.json
+```
+
+cURL:
+```bash
+$ curl -H "Content-Type: application/json" -X POST -d @testjob.json --insecure https://localhost:4372/submit
+```
+
+Response:
+```http
+HTTP/1.1 200 OK
+Access-Control-Allow-Credentials: true
+Access-Control-Allow-Origin: *
+Content-Encoding: gzip
+Content-Length: 60
+Content-Type: application/json
+Date: Thu, 26 Feb 2015 15:54:03 GMT
+Server: TornadoServer/4.1
+Vary: Accept-Encoding
+
+job_795aca97_8678_4af7_ade1_e4fadd7bff78
 ```
 
 ##### `inputs`
