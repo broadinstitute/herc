@@ -2,12 +2,23 @@
 
 This file gives more details on the Herc API.
 
+Examples are given with (cURL)[http://curl.haxx.se/docs/] and (HTTPie)[https://github.com/jakubroztocil/httpie], assuming the server is running on `localhost:4372` with self-signed certificates (i.e. do not try to verify SSL certificates)
+
 ## `GET /`
 
 Returns a list of endpoints and brief descriptions. This is always accurate; the document you're reading now may not be!
 
-`http --verify=no https://localhost:4372/`
+HTTPie:
+```bash
+$ http --verify=no https://localhost:4372/
+```
 
+cURL:
+```bash
+$ curl -i --insecure https://localhost:4372/
+```
+
+Response:
 ```http
 HTTP/1.1 200 OK
 Access-Control-Allow-Credentials: true
