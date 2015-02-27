@@ -1,4 +1,7 @@
 #!/bin/bash
 
-. /herc_venv/bin/activate
+VENV_DIR=/herc_venv
+
+source $VENV_DIR/bin/activate
 herc
+deactivate
