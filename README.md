@@ -41,6 +41,10 @@ $ screen -mdS herc bash -c 'source ve_herc/bin/activate && herc'
 
 For foreground operation with debug logging to stdout, run herc as: `herc --debug`
 
+### Running Herc in Docker
+
+See detailed instructions [here](docs/Herc-in-Docker.md)
+
 ## API
 
 The full list of endpoints provided by herc are always available at:
