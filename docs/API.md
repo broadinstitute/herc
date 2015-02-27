@@ -85,7 +85,7 @@ Vary: Accept-Encoding
 
 ## `POST /submit`
 
-Expects a JSON body that validates against the schema returned by `GET /schema`. Returns a string, the job ID.
+Expects a JSON body that validates against the schema returned by `GET /schema`. Returns a JSON object, { "jobid" : "<new_job_id>" }.
 
 The schema is defined [here](../data/schemas/jobsubmit.json) (and `GET /schema` simply returns the contents of this file). You can then check your generated JSON against the schema using the handy online validator [here](http://json-schema-validator.herokuapp.com/).
 

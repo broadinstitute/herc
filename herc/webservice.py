@@ -64,7 +64,7 @@ class submit(base):
     @gen.coroutine
     def post(self):
         """POST /submit
-        Submits a job request. Body must be JSON that validates against the JSON schema available at GET /schema. Returns a string, the job ID."""
+        Submits a job request. Body must be JSON that validates against the JSON schema available at GET /schema. Returns a JSON object, { "jobid" : "<new_job_id>" }."""
 
         # Validate the request against the schema, filling in defaults. This will raise an HTTPError if it fails validation.
         jobrq = yield jsonvalidate.validate(self.request.body, "data/schemas/jobsubmit.json")
