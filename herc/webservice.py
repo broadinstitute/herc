@@ -70,7 +70,7 @@ class submit(base):
         jobrq = yield jsonvalidate.validate(self.request.body, "data/schemas/jobsubmit.json")
         jobid = yield aurora.requestjob(jobrq)
 
-        self.write(json.dumps({'job_id': jobid}))
+        self.write(json.dumps({'jobid': jobid}))
         self.finish()
 
 
