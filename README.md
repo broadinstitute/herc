@@ -41,19 +41,9 @@ $ screen -mdS herc bash -c 'source ve_herc/bin/activate && herc'
 
 For foreground operation with debug logging to stdout, run herc as: `herc --debug`
 
-### Docker installation
+### Running Herc in Docker
 
-In the root directory is a `Dockerfile` which builds off of the [baseimage](http://phusion.github.io/baseimage-docker/) Docker image.  To get it up and running:
-
-```bash
-host-machine $ docker build .
-Successfully built e8d27cf83b42
-host-machine $ docker run -d -p 4372:4372 e8d27cf83b42
-a309813b3de6dfce4c336d12df8199d5dd691a8253d4acc74be44e044c39113d
-host-machine $ docker exec -t -i a309813b3de6dfce4c336d12df8199d5dd691a8253d4acc74be44e044c39113d bash -l
-root@a309813b3de6:/# source herc_venv/bin/activate
-(herc_venv)root@a309813b3de6:/# herc --debug
-```
+See detailed instructions [here](docs/Herc-in-Docker.md)
 
 ## API
 
