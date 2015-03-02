@@ -11,8 +11,7 @@ import json
 import time
 import herc.async as async
 import herc.jsonvalidate as jsonvalidate
-import herc.aurora as aurora
-import ssl
+import herc.aurorasched as scheduler
 
 
 class base(RequestHandler):
@@ -90,7 +89,7 @@ class submit(base):
 
         # Validate the request against the schema, filling in defaults. This will raise an HTTPError if it fails validation.
         jobrq = yield jsonvalidate.validate(self.request.body, "data/schemas/jobsubmit.json")
-        jobid = yield aurora.requestjob(jobrq)
+        jobid = yield scheduler.requestjob(jobrq)
 
         self.write(json.dumps({'jobid': jobid}))
         self.finish()
@@ -102,7 +101,7 @@ class status(base):
     def get(self, jobid):
         """GET /status/<jobid>
         Query Aurora and return the status of this job. 404 if not found, otherwise will return JSON with the job's current status and the time it entered that status."""
-        status = yield aurora.status(jobid)
+        status = yield scheduler.status(jobid)
         self.write(json.dumps(status, indent=1))
         self.finish()
 
