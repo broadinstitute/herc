@@ -28,7 +28,7 @@ def _aurora_installed():
                 subprocess.call(["aurora"], stdout=null, stderr=null)
             aurora_exists = True
         except OSError:
-            print "WARNING: aurora not installed, aurora endpoints will return dummy values"
+            print("WARNING: aurora not installed, aurora endpoints will return dummy values")
             aurora_exists = False
     return aurora_exists
 
@@ -106,7 +106,7 @@ def requestjob(jobrq):
         subprocess.call(['aurora', 'job', 'create', 'herc/jclouds/devel/' + jobid, tmpfile.name])
         auroratime = time.time() - then
 
-    print template.render(jr)
+    print(template.render(jr))
 
     # don't do this until after the job is submitted
     tmpfile.close()
