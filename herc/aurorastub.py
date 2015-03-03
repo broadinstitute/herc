@@ -7,8 +7,8 @@ class AuroraStub(object):
         pass
 
     def requestjob(self, jobid, jobrq):
-        """Doesn't do anything, just returns the jobid as per spec."""
-        return jobid
+        """No return value required; nothing to do."""
+        return None
 
     def status(self, jobid):
         """Returns a good-looking placeholder job status."""
