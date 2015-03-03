@@ -20,7 +20,8 @@ def get_backend():
         backends_list = config.get("scheduler.backends")
         for backend_path in backends_list:
             try:
-                backend_class = config.importclass(backend_path)()
+                backend_class = config.importclass(backend_path)
+                print backend_class
                 aurora_backends[thrid] = backend_class()
                 break #bail as soon as we get a match
             except (ImportError, AttributeError):

@@ -39,7 +39,7 @@ def get(*args, **kwargs):
 def importclass(classpath):
     """Turns a string representing a Python class into the actual class object.
     May return ImportError or AttributeError if you do something that's not legit."""
-    path = classpath.rsplit( ".", maxsplit=1 )
+    path = classpath.rsplit( ".", 1 )
 
     # load the module, will raise ImportError if module cannot be loaded
     m = importlib.import_module(path[0])

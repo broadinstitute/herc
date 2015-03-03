@@ -24,7 +24,7 @@ class base(RequestHandler):
 
     def write_error(self, status_code, **kwargs):
         if self.settings.get("serve_traceback") and "exc_info" in kwargs:
-            super(base, self).write_error(status_code, kwargs)
+            super(base, self).write_error(status_code, **kwargs)
         else:
             log_msg = None
             try:
