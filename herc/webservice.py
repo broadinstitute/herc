@@ -101,11 +101,11 @@ class sleep(base):
         return "Slept for " + str(time.time() - then) + " seconds"
 
 endpoint_mapping = {
-    r'/': {'class': index},
-    r'/schema/?': {'class': schema},
-    r'/submit/?': {'class': submit},
-    r'/status/(.*)/?': {'class': status},
-    r'/sleep/(.*)/?': {'class': sleep}
+    r'/': index,
+    r'/schema/?': schema,
+    r'/submit/?': submit,
+    r'/status/(.*)/?': status,
+    r'/sleep/(.*)/?': sleep
 }
 pretty_endpoints = endpoints.prettify(endpoint_mapping)
 
@@ -129,8 +129,7 @@ def main():
     if not os.path.isfile("herc.crt") or not os.path.isfile("herc.key"):
         subprocess.call('openssl req -x509 -newkey rsa:2048 -keyout herc.key -out herc.crt -days 36500 -nodes -subj'.split() + ["/C=US/ST=MA/L=Cambridge/O=Broad Institute/OU=Prometheus"])
 
-    urls = [(end, endpoint_mapping[end]['class']) for end in endpoint_mapping]
-    app = Application(urls, compress_response=True, debug=cli.debug)
+    app = Application(endpoint_mapping.items(), compress_response=True, debug=cli.debug)
     ili = IOLoop.instance()
     async.io_loop = ili  # set up io_loop for async executor
 

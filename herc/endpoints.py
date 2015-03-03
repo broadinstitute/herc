@@ -10,7 +10,7 @@ def prettify(endpoint_mapping):
     # they end up looking like { "GET /schema": "Returns the JSON schema used to validate job submission requests." }
     d = {inspect.getdoc(meth).split('\n', 1)[0]: inspect.getdoc(meth).split('\n', 1)[-1]
          for end in endpoint_mapping.values()
-         for (mname, meth) in inspect.getmembers(end['class'], lambda m: inspect.isfunction(m)
-                                                 and m.__name__ in end['class'].__dict__
+         for (mname, meth) in inspect.getmembers(end, lambda m: inspect.isfunction(m)
+                                                 and m.__name__ in end.__dict__
                                                  and m.__name__ in http_methods)}
     return OrderedDict(sorted(d.items(), key=lambda t: t[0]))
