@@ -12,6 +12,7 @@ import time
 import herc.async as async
 import herc.jsonvalidate as jsonvalidate
 import herc.aurorasched as scheduler
+import herc.config as config
 
 
 class base(RequestHandler):
@@ -144,6 +145,9 @@ def main():
         print('Started Herc in DEBUG mode (port {0})'.format(cli.port))
         from tornado.log import enable_pretty_logging
         enable_pretty_logging()
+
+    #Force a config load so we exit early if we fail to load one.
+    config.load_config()
 
     # Generate a self-signed certificate and key if we don't already have one.
     if not os.path.isfile("herc.crt") or not os.path.isfile("herc.key"):

@@ -2,9 +2,10 @@ import herc.async as async
 import uuid
 import json
 import re
-import auroracli
 from tornado.web import HTTPError
 import thread
+import herc.config as config
+import herc.aurorabackend as aurorabackend
 
 
 #Dict of Aurora backend instances keyed by thread ID.
@@ -16,10 +17,23 @@ def get_backend():
         return aurora_backends[thrid]
     except KeyError:
         #No backend! Create it.
-        #TODO: Read this from config. Fall back to stub interface if config allows.
-        aurora_backends[thrid] = auroracli.AuroraCLI()
+        backends_list = config.get("scheduler.backends")
+        for backend_path in backends_list:
+            try:
+                backend_class = config.importclass(backend_path)()
+                aurora_backends[thrid] = backend_class()
+                break #bail as soon as we get a match
+            except (ImportError, AttributeError):
+                print "Couldn't find class for backend:", backend_path
+            except aurorabackend.BackendInitException as be:
+                print "Backend", backend_path, "failed to initialize with error:"
+                print be.message
+                print "Trying next backend..."
 
+    try:
         return aurora_backends[thrid]
+    except KeyError:
+        raise aurorabackend.BackendInitException("Failed to find a working Aurora backend!")
 
 @async.usepool('aurora')
 def requestjob(jobrq):
