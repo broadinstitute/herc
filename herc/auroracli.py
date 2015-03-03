@@ -4,13 +4,13 @@ import tempfile
 import subprocess
 import os
 import time
+from herc.aurorabackend import BackendInitException
 
 aurora_checked = False
 aurora_exists = True
 
 def _aurora_installed():
-    """Utility method so we can return stub results for an installation of Herc that's not actually connected to Aurora."""
-    # TODO: Swap to the stub Aurora at scheduler init time if no AuroraCLI.
+    """Utility method to determine if the Aurora client actually exists."""
     global aurora_checked
     global aurora_exists
 
@@ -21,7 +21,6 @@ def _aurora_installed():
                 subprocess.call(["aurora"], stdout=null, stderr=null)
             aurora_exists = True
         except OSError:
-            print "WARNING: aurora not installed, aurora endpoints will return dummy values"
             aurora_exists = False
     return aurora_exists
 
@@ -29,7 +28,9 @@ class AuroraCLI(object):
     """Talk to the Aurora scheduler using the Aurora client."""
 
     def __init__(self):
-        #TODO: throw BackendNotFoundException if no Aurora client, so the scheduler can pick it up and fall back?
+        if not _aurora_installed():
+            raise BackendInitException("Aurora client not found, cannot initialize AuroraCLI backend")
+
         self.loader = FileSystemLoader('jobdefs')
         self.env = Environment(loader=self.loader, trim_blocks=True, lstrip_blocks=True)
 

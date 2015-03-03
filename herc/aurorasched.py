@@ -18,6 +18,7 @@ def get_backend():
         #No backend! Create it.
         #TODO: Read this from config. Fall back to stub interface if config allows.
         aurora_backends[thrid] = auroracli.AuroraCLI()
+
         return aurora_backends[thrid]
 
 @async.usepool('aurora')
