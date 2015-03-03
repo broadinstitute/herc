@@ -34,7 +34,8 @@ class AuroraCLI(object):
         self.loader = FileSystemLoader('jobdefs')
         self.env = Environment(loader=self.loader, trim_blocks=True, lstrip_blocks=True)
 
-    def _build_jinja_dict(self, jobid, jobrq):
+    @staticmethod
+    def _build_jinja_dict(jobid, jobrq):
         """Takes an ID and job request object and converts it into a Python object for passing to Jinja."""
 
         # the job request we're going to fill in
