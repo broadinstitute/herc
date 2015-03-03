@@ -2,6 +2,8 @@ from tornado.ioloop import IOLoop, PeriodicCallback
 from tornado.web import RequestHandler, Application
 from tornado import gen
 from tornado import httpserver
+from collections import OrderedDict
+import inspect
 import argparse
 import os.path
 import subprocess
@@ -10,7 +12,6 @@ import time
 import herc.async as async
 import herc.jsonvalidate as jsonvalidate
 import herc.aurora as aurora
-import herc.endpoints as endpoints
 import ssl
 
 
@@ -45,8 +46,29 @@ class index(base):
     def get(self):
         """GET /
         Returns the list of endpoints that this webservice provides."""
-        self.write(json.dumps(pretty_endpoints, indent=1))
+        global endpoint_mapping
+        self.write(json.dumps(self.prettify(endpoint_mapping), indent=1))
         self.finish()
+
+    def prettify(self, endpoint_mapping):
+        """Constructs a dict of endpoints and their descriptions, pulled from the docstrings of the endpoint classes themselves."""
+        http_methods = [http_method.lower() for http_method in RequestHandler.SUPPORTED_METHODS]
+        http_request_handlers = list(endpoint_mapping.values())
+
+        # Get doc strings for all functions in RequestHandlers.  Only non-empty doc strings for http methods are returned
+        doc_strings = [inspect.getdoc(function)
+            for handler in http_request_handlers
+            for function in dict(inspect.getmembers(handler)).values()
+            if inspect.isfunction(function)
+               and function.__name__ in http_methods
+               and inspect.getdoc(function) is not None
+        ]
+
+        docs_dictionary = OrderedDict([
+            (doc_string.split('\n', 1)[0], doc_string.split('\n', 1)[1]) for doc_string in sorted(doc_strings)
+        ])
+
+        return docs_dictionary
 
 
 class schema(base):
@@ -107,7 +129,6 @@ endpoint_mapping = {
     r'/status/(.*)/?': status,
     r'/sleep/(.*)/?': sleep
 }
-pretty_endpoints = endpoints.prettify(endpoint_mapping)
 
 
 def main():

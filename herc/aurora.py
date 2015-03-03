@@ -95,7 +95,7 @@ def requestjob(jobrq):
     tmpfile = tempfile.NamedTemporaryFile(suffix=".aurora")
 
     # might error.
-    tmpfile.write(template.render(jr))
+    tmpfile.write(template.render(jr).encode('utf-8'))
     tmpfile.flush()
     os.fsync(tmpfile.fileno())
 
