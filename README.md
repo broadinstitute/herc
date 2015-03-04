@@ -9,33 +9,15 @@ herc uses [Apache Aurora](http://aurora.incubator.apache.org/) to schedule jobs 
 
 The full documentation is in the [docs](docs/Home.md) folder; this is just a quick overview.
 
-## Setting up Mesosphere
-
-For now, the easiest way to get herc running is by spinning up a cluster on [Mesosphere](https://google.mesosphere.com/).
-
-Once the cluster has finished spinning up, the `setup_mesosphere` folder has a shell script that will install Aurora for you. It currently spins up one Aurora scheduler (on the Mesos master) and assumes all the other nodes are slaves.
-
-From the machine that you gave Mesosphere the ssh_keys for:
-
-```
-$ git clone git@github.com:broadinstitute/herc.git
-$ cd setup_mesosphere
-
-# use the External IPs listed in your Mesosphere cluster's page.
-$ ./aurora_mesosphere_setup.sh master_ip slave1_ip slave2_ip slave3_ip ... slaveN_ip
-```
-
 ## Installing herc
 
 Herc runs on Python 2.7. It may be upgraded to Python 3 at some point, depending on where DSDE Engineering settles re Python standards.
-
-On the Mesosphere master:
 
 ```
 $ git clone git@github.com:broadinstitute/herc.git
 $ virtualenv ve_herc
 $ source ve_herc/bin/activate
-$ python setup.py develop
+$ python setup.py install
 $ screen -mdS herc bash -c 'source ve_herc/bin/activate && herc'
 ```
 
@@ -65,16 +47,14 @@ A deeper dive into the API is available [here](docs/API.md).
 
 ## Watching it go
 
-Connect to the VPN provided by Mesosphere. From there, there are two things to look at:
-
 #### Aurora
 
-`master_ip:8081/scheduler`
+`aurora_ip:8081/scheduler`
 
 Shows Aurora details about your job. You'll be able to see if it got lost; most often this is because the executor wasn't correctly installed and Mesos gave up on it. In this case you'll see a bunch of failed jobs and an active job that's throttled for "flapping".
 
 #### Mesos
 
-`master_ip:5050`
+`mesos_master_ip:5050`
 
 Will show you the jobs that Mesos knows about, and allow you dig into the stderr and stdout files generated in the slave sandboxes.
