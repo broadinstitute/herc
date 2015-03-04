@@ -16,14 +16,13 @@ RUN add-apt-repository "deb http://archive.ubuntu.com/ubuntu $(lsb_release -sc) 
     apt-get update && \
     apt-get install wget && \
 
-    # Note that the next two commands is here to fix Ubuntu's broken Python 3 installation.
-    # for some crazy reason, the 'ensurepip' module in missingPython's default installation location.
-    # This causes pyvenv-3.4 to fail.  This hack downloads the module and installs it to the right
-    # place in /usr/lib/python3.4.
+    # Note that the next command is here to fix Ubuntu's broken Python 3 installation.
+    # For some crazy reason, the 'ensurepip' module in missing in Python's default installation
+    # location.  This causes pyvenv-3.4 to fail.  This hack downloads the module and installs
+    # it to the right place in /usr/lib/python3.4.
     #
     # (see: https://bugs.launchpad.net/ubuntu/+source/python3.4/+bug/1290847)
-    wget http://d.pr/f/YqS5+ -O /usr/lib/python3.4/ensurepip.tar.gz && \
-    tar -xvzf /usr/lib/python3.4/ensurepip.tar.gz && \
+    curl -L http://d.pr/f/YqS5+ | tar xvz -C /usr/lib/python3.4
 
     # Clean up intermediate files to keep the docker images small
     apt-get clean && \
