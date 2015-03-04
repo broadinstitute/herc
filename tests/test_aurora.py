@@ -80,6 +80,8 @@ class TestScheduler(TestCase):
         with self.assertRaises(AssertionError):
             scheduler.determine_true_status(failed_status)
 
+    # TODO: Test that scheduler.status() correctly handles out-of-order job completion
+
 class TestAuroraCLI(TestCase):
     def test_build_jinjadict(self):
         """Test that we transform a JSON request into a Jinja template fill correctly."""
@@ -88,3 +90,9 @@ class TestAuroraCLI(TestCase):
 
         jinjadict = auroracli.AuroraCLI._build_jinja_dict("TESTJOB", fullrq)
         self.assertEqual( jinjadict, jinja_dicts.full_submit )
+
+    # TODO: Test that jinja correctly renders an .aurora file out of the jinjadict
+
+# TODO: test config loading?
+# TODO: test backend fallback mechanism?
+# TODO: test webservice endpoints give 200s / 404s / 400s as expected (given mock everythings)?
