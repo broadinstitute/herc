@@ -13,7 +13,7 @@ def extend_with_default(validator_class):
         for error in validate_properties(validator, properties, instance, schema):
             yield error
 
-        for property, subschema in properties.iteritems():
+        for property, subschema in properties.items():
             if "default" in subschema:
                 instance.setdefault(property, subschema["default"])
 
@@ -36,7 +36,7 @@ def validate(jsonstr, schemapath):
 
     # Now validate the schema given.
     try:
-        submitrq = jsonref.loads(jsonstr)
+        submitrq = jsonref.loads(jsonstr.decode('utf-8'))
         validator_fill_defaults(schema).validate(submitrq)
         return submitrq
     except TypeError:

@@ -28,7 +28,7 @@ def _aurora_installed():
                 subprocess.call(["aurora"], stdout=null, stderr=null)
             aurora_exists = True
         except OSError:
-            print "WARNING: aurora not installed, aurora endpoints will return dummy values"
+            print("WARNING: aurora not installed, aurora endpoints will return dummy values")
             aurora_exists = False
     return aurora_exists
 
@@ -58,7 +58,7 @@ def build_jinja_dict(jobid, jobrq):
     # combine(), that should be the final task in this list.
     jr['tasks'] = [{'name': jobid + '_task',
                     'type': 'SequentialTask',
-                    'processes': map(lambda p: p['name'], jr['processes']),
+                    'processes': [p['name'] for p in jr['processes']],
                     'cpus': jobrq['resources']['cpus'],
                     'mem': jobrq['resources']['mem'],
                     'memunit': jobrq['resources']['memunit'],
@@ -95,7 +95,7 @@ def requestjob(jobrq):
     tmpfile = tempfile.NamedTemporaryFile(suffix=".aurora")
 
     # might error.
-    tmpfile.write(template.render(jr))
+    tmpfile.write(template.render(jr).encode('utf-8'))
     tmpfile.flush()
     os.fsync(tmpfile.fileno())
 
@@ -106,7 +106,7 @@ def requestjob(jobrq):
         subprocess.call(['aurora', 'job', 'create', 'herc/jclouds/devel/' + jobid, tmpfile.name])
         auroratime = time.time() - then
 
-    print template.render(jr)
+    print(template.render(jr))
 
     # don't do this until after the job is submitted
     tmpfile.close()
@@ -181,7 +181,7 @@ def status(jobid):
         resjson = subprocess.check_output(['aurora', 'job', 'status', 'herc/jclouds/devel/' + jobid, "--write-json"])
         auroratime = time.time() - then
 
-        jobresult = json.loads(resjson)
+        jobresult = json.loads(resjson.decode('utf-8'))
         if 'error' in jobresult:
             # {"jobspec":"herc/jclouds/devel/nonexistent_job","error":"No matching jobs found"}
             raise HTTPError(404, "Job ID " + jobid + " not found")
