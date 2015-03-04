@@ -181,7 +181,7 @@ def status(jobid):
         resjson = subprocess.check_output(['aurora', 'job', 'status', 'herc/jclouds/devel/' + jobid, "--write-json"])
         auroratime = time.time() - then
 
-        jobresult = json.loads(resjson)
+        jobresult = json.loads(resjson.decode('utf-8'))
         if 'error' in jobresult:
             # {"jobspec":"herc/jclouds/devel/nonexistent_job","error":"No matching jobs found"}
             raise HTTPError(404, "Job ID " + jobid + " not found")
