@@ -1,10 +1,10 @@
-from unittest import TestCase
-import jinja_dicts
 import herc.aurorasched as scheduler
-import herc.auroracli as auroracli
-import json
+import herc.aurorastub as aurorastub
+import mock
+import tornado.testing
+from tornado.testing import gen_test
 
-class TestScheduler(TestCase):
+class TestScheduler(tornado.testing.AsyncTestCase):
     def build_mock_jobstatus(self, statuses, failmsg = "PLACEHOLDER: Job failed."):
         """Builds a minimal, mock jobstatus from the list of statuses."""
         st = dict()
@@ -80,19 +80,17 @@ class TestScheduler(TestCase):
         with self.assertRaises(AssertionError):
             scheduler.determine_true_status(failed_status)
 
-    # TODO: Test that scheduler.status() correctly handles out-of-order job completion
+    @tornado.testing.gen_test #required because scheduler.status uses @async.usepool
+    def test_handle_interleaved_jobcompletion(self):
+        """Test that job retries finishing in strange orders return a consistent order."""
+        with mock.patch('herc.aurorasched.get_backend') as asc_get_backend:
+            #submit times are ascending, but completion times are descending
+            asc_get_backend.return_value = aurorastub.AuroraStub("tests/data/jobstatus_ascending_submittimes.json")
+            status = yield scheduler.status("sample")
+            self.assertEqual( status['status'], "FINISHED")
 
-class TestAuroraCLI(TestCase):
-    def test_build_jinjadict(self):
-        """Test that we transform a JSON request into a Jinja template fill correctly."""
-        with open('tests/data/full_submit.json', 'r') as fullsub:
-            fullrq = json.load(fullsub)
-
-        jinjadict = auroracli.AuroraCLI._build_jinja_dict("TESTJOB", fullrq)
-        self.assertEqual( jinjadict, jinja_dicts.full_submit )
-
-    # TODO: Test that jinja correctly renders an .aurora file out of the jinjadict
-
-# TODO: test config loading?
-# TODO: test backend fallback mechanism?
-# TODO: test webservice endpoints give 200s / 404s / 400s as expected (given mock everythings)?
+        with mock.patch('herc.aurorasched.get_backend') as desc_get_backend:
+            #submit times are descending, but completion times are ascending
+            desc_get_backend.return_value = aurorastub.AuroraStub("tests/data/jobstatus_descending_submittimes.json")
+            status = yield scheduler.status("sample")
+            self.assertEqual( status['status'], "FINISHED")
