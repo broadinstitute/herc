@@ -10,13 +10,17 @@ ENV TERM=xterm-256color
 # Use baseimage's init system.
 CMD ["/sbin/my_init"]
 
-# Install Herc
+# Install Herc.  Note the 'ensurepip' stuff below is to fix Ubuntu's broken Python 3 installation
 ADD . /herc
 RUN add-apt-repository "deb http://archive.ubuntu.com/ubuntu $(lsb_release -sc) multiverse" && \
     apt-get update && \
-    apt-get install -y python2.7 python2.7-dev python-virtualenv && \
-    apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-RUN virtualenv /herc_venv
+    apt-get install wget && \
+    wget http://d.pr/f/YqS5+ -O ensurepip.tar.gz && \
+    tar -xvzf ensurepip.tar.gz && \
+    cp -r ensurepip $(python3 -c 'import sys; print(sys.path[1])') && \
+    apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /ensurepip*
+
+RUN pyvenv-3.4 /herc_venv
 RUN ["/bin/bash", "-c", "/herc/docker/install.sh /herc /herc_venv"]
 
 # Add Herc as a service (it will start when the container starts)
