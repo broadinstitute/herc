@@ -10,15 +10,24 @@ ENV TERM=xterm-256color
 # Use baseimage's init system.
 CMD ["/sbin/my_init"]
 
-# Install Herc.  Note the 'ensurepip' stuff below is to fix Ubuntu's broken Python 3 installation
+# Install Herc.
 ADD . /herc
 RUN add-apt-repository "deb http://archive.ubuntu.com/ubuntu $(lsb_release -sc) multiverse" && \
     apt-get update && \
     apt-get install wget && \
-    wget http://d.pr/f/YqS5+ -O ensurepip.tar.gz && \
-    tar -xvzf ensurepip.tar.gz && \
-    cp -r ensurepip $(python3 -c 'import sys; print(sys.path[1])') && \
-    apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /ensurepip*
+
+    # Note that the next two commands is here to fix Ubuntu's broken Python 3 installation.
+    # for some crazy reason, the 'ensurepip' module in missingPython's default installation location.
+    # This causes pyvenv-3.4 to fail.  This hack downloads the module and installs it to the right
+    # place in /usr/lib/python3.4.
+    #
+    # (see: https://bugs.launchpad.net/ubuntu/+source/python3.4/+bug/1290847)
+    wget http://d.pr/f/YqS5+ -O /usr/lib/python3.4/ensurepip.tar.gz && \
+    tar -xvzf /usr/lib/python3.4/ensurepip.tar.gz && \
+
+    # Clean up intermediate files to keep the docker images small
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/lib/python3.4/ensurepip.tar.gz
 
 RUN pyvenv-3.4 /herc_venv
 RUN ["/bin/bash", "-c", "/herc/docker/install.sh /herc /herc_venv"]
