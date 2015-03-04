@@ -58,7 +58,7 @@ def build_jinja_dict(jobid, jobrq):
     # combine(), that should be the final task in this list.
     jr['tasks'] = [{'name': jobid + '_task',
                     'type': 'SequentialTask',
-                    'processes': map(lambda p: p['name'], jr['processes']),
+                    'processes': [p['name'] for p in jr['processes']],
                     'cpus': jobrq['resources']['cpus'],
                     'mem': jobrq['resources']['mem'],
                     'memunit': jobrq['resources']['memunit'],
