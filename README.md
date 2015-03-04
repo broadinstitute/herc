@@ -11,7 +11,7 @@ The full documentation is in the [docs](docs/Home.md) folder; this is just a qui
 
 ## Installing herc
 
-Herc runs on Python 3.4. It may be upgraded to Python 3 at some point, depending on where DSDE Engineering settles re Python standards.
+Herc runs on Python 3.4.
 
 ```
 $ git clone git@github.com:broadinstitute/herc.git
