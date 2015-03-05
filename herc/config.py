@@ -24,10 +24,10 @@ def load_config():
 
         if _config is None:
             #still? must have failed
-            print "Fatal error - failed to load Herc config file!"
-            print "Locations checked:", _configlocs
+            print("Fatal error - failed to load Herc config file!")
+            print("Locations checked:", _configlocs)
             for exc in excs:
-                print "Errors, in order:"
+                print("Errors, in order:")
                 traceback.print_tb(exc)
             sys.exit(1)
 

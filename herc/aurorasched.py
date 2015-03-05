@@ -3,7 +3,7 @@ import uuid
 import json
 import re
 from tornado.web import HTTPError
-import thread
+import _thread
 import herc.config as config
 import herc.aurorabackend as aurorabackend
 
@@ -12,7 +12,7 @@ import herc.aurorabackend as aurorabackend
 #Ensures that two Aurora commands don't interfere by e.g. attempting to write to the same socket.
 aurora_backends = dict()
 def get_backend():
-    thrid = thread.get_ident()
+    thrid = _thread.get_ident()
     try:
         return aurora_backends[thrid]
     except KeyError:
@@ -21,15 +21,15 @@ def get_backend():
         for backend_path in backends_list:
             try:
                 backend_class = config.importclass(backend_path)
-                print backend_class
+                print(backend_class)
                 aurora_backends[thrid] = backend_class()
                 break #bail as soon as we get a match
             except (ImportError, AttributeError):
-                print "Couldn't find class for backend:", backend_path
+                print("Couldn't find class for backend:", backend_path)
             except aurorabackend.BackendInitException as be:
-                print "Backend", backend_path, "failed to initialize with error:"
-                print be.message
-                print "Trying next backend..."
+                print("Backend", backend_path, "failed to initialize with error:")
+                print(be.message)
+                print("Trying next backend...")
 
     try:
         return aurora_backends[thrid]

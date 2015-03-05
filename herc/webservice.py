@@ -58,7 +58,7 @@ class index(base):
         # Get doc strings for all functions in RequestHandlers.  Only non-empty doc strings for http methods are returned
         doc_strings = [inspect.getdoc(function)
             for handler in http_request_handlers
-            for function in dict(inspect.getmembers(handler)).values()
+            for function in list(dict(inspect.getmembers(handler)).values())
             if inspect.isfunction(function)
                and function.__name__ in http_methods
                and inspect.getdoc(function) is not None
@@ -153,7 +153,7 @@ def main():
     if not os.path.isfile("herc.crt") or not os.path.isfile("herc.key"):
         subprocess.call('openssl req -x509 -newkey rsa:2048 -keyout herc.key -out herc.crt -days 36500 -nodes -subj'.split() + ["/C=US/ST=MA/L=Cambridge/O=Broad Institute/OU=Prometheus"])
 
-    app = Application(endpoint_mapping.items(), compress_response=True, debug=cli.debug)
+    app = Application(list(endpoint_mapping.items()), compress_response=True, debug=cli.debug)
     ili = IOLoop.instance()
     async.io_loop = ili  # set up io_loop for async executor
 

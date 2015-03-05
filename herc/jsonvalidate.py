@@ -13,7 +13,7 @@ def extend_with_default(validator_class):
         for error in validate_properties(validator, properties, instance, schema):
             yield error
 
-        for property, subschema in properties.items():
+        for property, subschema in list(properties.items()):
             if "default" in subschema:
                 instance.setdefault(property, subschema["default"])
 
