@@ -29,14 +29,14 @@ def validate(jsonstr, schemapath):
 
     # Attempt to load the schema first
     try:
-        with open(schemapath, 'r') as schemaf:
+        with open(schemapath, 'r', encoding='utf-8') as schemaf:
             schema = jsonref.load(schemaf)
     except ValueError:
         raise HTTPError(500, "Something appears to be wrong with the Aurora job schema! This is definitely a bug.")
 
     # Now validate the schema given.
     try:
-        submitrq = jsonref.loads(jsonstr.decode('utf-8'))
+        submitrq = jsonref.loads(jsonstr)
         validator_fill_defaults(schema).validate(submitrq)
         return submitrq
     except TypeError:

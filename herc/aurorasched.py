@@ -28,7 +28,7 @@ def get_backend():
                 print("Couldn't find class for backend:", backend_path)
             except aurorabackend.BackendInitException as be:
                 print("Backend", backend_path, "failed to initialize with error:")
-                print(be.message)
+                print(be)
                 print("Trying next backend...")
 
     try:
@@ -114,7 +114,7 @@ def status(jobid):
 
     resjson = get_backend().status(jobid)
 
-    jobresult = json.loads(resjson.encode('utf-8'))
+    jobresult = json.loads(resjson)
     if 'error' in jobresult:
         # {"jobspec":"herc/jclouds/devel/nonexistent_job","error":"No matching jobs found"}
         raise HTTPError(404, "Job ID " + jobid + " not found")

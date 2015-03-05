@@ -4,7 +4,7 @@ import herc.jsonvalidate as jsonvalidate
 import json
 
 def get_str(path):
-	with open(path, 'r') as fullfile:
+	with open(path, 'r', encoding="utf-8") as fullfile:
 		content = fullfile.read()
 		return content
 

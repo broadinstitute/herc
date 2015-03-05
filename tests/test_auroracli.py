@@ -1,12 +1,12 @@
 from unittest import TestCase
-import jinja_dicts
+import tests.jinja_dicts as jinja_dicts
 import herc.auroracli as auroracli
 import json
 
 class TestAuroraCLI(TestCase):
     def test_build_jinjadict(self):
         """Test that we transform a JSON request into a Jinja template fill correctly."""
-        with open('tests/data/full_submit.json', 'r') as fullsub:
+        with open('tests/data/full_submit.json', 'r', encoding="utf-8") as fullsub:
             fullrq = json.load(fullsub)
 
         jinjadict = auroracli.AuroraCLI._build_jinja_dict("TESTJOB", fullrq)

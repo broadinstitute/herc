@@ -35,10 +35,10 @@ class base(RequestHandler):
                 log_msg = self._reason if log_msg is None else log_msg
 
             self.set_header('Content-Type', 'application/json')
-            self.finish("%(code)d: %(message)s" % {
+            self.finish(json.dumps({
                 "code": status_code,
                 "message": log_msg
-            })
+            }))
 
 
 class index(base):
@@ -76,7 +76,7 @@ class schema(base):
     def get(self):
         """GET /schema
         Returns the JSON schema used to validate job submission requests."""
-        with open("data/schemas/jobsubmit.json", 'r') as jschema:
+        with open("data/schemas/jobsubmit.json", 'r', encoding="utf-8") as jschema:
             self.write(jschema.read())
             self.finish()
 
@@ -89,7 +89,7 @@ class submit(base):
         Submits a job request. Body must be JSON that validates against the JSON schema available at GET /schema. Returns a JSON object, { "jobid" : "<new_job_id>" }."""
 
         # Validate the request against the schema, filling in defaults. This will raise an HTTPError if it fails validation.
-        jobrq = yield jsonvalidate.validate(self.request.body, "data/schemas/jobsubmit.json")
+        jobrq = yield jsonvalidate.validate(self.request.body.decode('utf-8'), "data/schemas/jobsubmit.json")
         jobid = yield scheduler.requestjob(jobrq)
 
         self.write(json.dumps({'jobid': jobid}))

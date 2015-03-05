@@ -12,5 +12,5 @@ class AuroraStub(object):
 
     def status(self, jobid):
         """Returns a good-looking placeholder job status."""
-        with open(self.fakestatuspath, 'r') as fakestatus:
+        with open(self.fakestatuspath, 'r', encoding='utf-8') as fakestatus:
             return fakestatus.read()
