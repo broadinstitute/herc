@@ -26,7 +26,7 @@ RUN add-apt-repository "deb http://archive.ubuntu.com/ubuntu $(lsb_release -sc) 
 
     # Clean up intermediate files to keep the docker images small
     apt-get clean && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/lib/python3.4/ensurepip.tar.gz
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN pyvenv-3.4 $HERC_VENV
 RUN ["/bin/bash", "-c", "/herc/docker/install.sh $HERC_SRC $HERC_VENV"]
