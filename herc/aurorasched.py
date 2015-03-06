@@ -1,11 +1,11 @@
-import herc.async as async
 import uuid
 import json
 import re
 from tornado.web import HTTPError
 import _thread
-import herc.config as config
-import herc.aurorabackend as aurorabackend
+from . import async
+from . import config
+from . import aurorabackend
 
 
 #Dict of Aurora backend instances keyed by thread ID.

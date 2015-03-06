@@ -9,10 +9,10 @@ import os.path
 import subprocess
 import json
 import time
-import herc.async as async
-import herc.jsonvalidate as jsonvalidate
-import herc.aurorasched as scheduler
-import herc.config as config
+from . import async
+from . import jsonvalidate
+from . import aurorasched as scheduler
+from . import config
 
 
 class base(RequestHandler):

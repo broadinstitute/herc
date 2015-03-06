@@ -4,7 +4,7 @@ import tempfile
 import subprocess
 import os
 import time
-from herc.aurorabackend import BackendInitException
+from .aurorabackend import BackendInitException
 
 aurora_checked = False
 aurora_exists = True
