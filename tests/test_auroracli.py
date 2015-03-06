@@ -1,6 +1,6 @@
 from unittest import TestCase
 import tests.jinja_dicts as jinja_dicts
-import herc.auroracli as auroracli
+from herc.backends import AuroraCLI
 import json
 
 class TestAuroraCLI(TestCase):
@@ -9,7 +9,7 @@ class TestAuroraCLI(TestCase):
         with open('tests/data/full_submit.json', 'r', encoding="utf-8") as fullsub:
             fullrq = json.load(fullsub)
 
-        jinjadict = auroracli.AuroraCLI._build_jinja_dict("TESTJOB", fullrq)
+        jinjadict = AuroraCLI._build_jinja_dict("TESTJOB", fullrq)
         self.assertEqual( jinjadict, jinja_dicts.full_submit )
 
         # TODO: Test that jinja correctly renders an .aurora file out of the jinjadict

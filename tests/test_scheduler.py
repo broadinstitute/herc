@@ -1,5 +1,5 @@
 import herc.aurorasched as scheduler
-import herc.aurorastub as aurorastub
+from herc.backends import AuroraStub
 import mock
 import tornado.testing
 from tornado.testing import gen_test
@@ -85,12 +85,12 @@ class TestScheduler(tornado.testing.AsyncTestCase):
         """Test that job retries finishing in strange orders return a consistent order."""
         with mock.patch('herc.aurorasched.get_backend') as asc_get_backend:
             #submit times are ascending, but completion times are descending
-            asc_get_backend.return_value = aurorastub.AuroraStub("tests/data/jobstatus_ascending_submittimes.json")
+            asc_get_backend.return_value = AuroraStub("tests/data/jobstatus_ascending_submittimes.json")
             status = yield scheduler.status("sample")
             self.assertEqual( status['status'], "FINISHED")
 
         with mock.patch('herc.aurorasched.get_backend') as desc_get_backend:
             #submit times are descending, but completion times are ascending
-            desc_get_backend.return_value = aurorastub.AuroraStub("tests/data/jobstatus_descending_submittimes.json")
+            desc_get_backend.return_value = AuroraStub("tests/data/jobstatus_descending_submittimes.json")
             status = yield scheduler.status("sample")
             self.assertEqual( status['status'], "FINISHED")

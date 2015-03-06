@@ -5,7 +5,7 @@ from tornado.web import HTTPError
 import _thread
 from . import async
 from . import config
-from . import aurorabackend
+from . import backends
 
 
 #Dict of Aurora backend instances keyed by thread ID.
@@ -26,7 +26,7 @@ def get_backend():
                 break #bail as soon as we get a match
             except (ImportError, AttributeError):
                 print("Couldn't find class for backend:", backend_path)
-            except aurorabackend.BackendInitException as be:
+            except backends.BackendInitException as be:
                 print("Backend", backend_path, "failed to initialize with error:")
                 print(be)
                 print("Trying next backend...")
@@ -34,7 +34,7 @@ def get_backend():
     try:
         return aurora_backends[thrid]
     except KeyError:
-        raise aurorabackend.BackendInitException("Failed to find a working Aurora backend!")
+        raise backends.BackendInitException("Failed to find a working Aurora backend!")
 
 @async.usepool('aurora')
 def requestjob(jobrq):
