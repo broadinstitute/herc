@@ -1,0 +1,84 @@
+[
+  {
+    "active": [],
+    "job": "herc/jclouds/devel/testJob",
+    "inactive": [
+      {
+        "status": "FINISHED",
+        "assignedTask": {
+          "task": {
+            "isService": false,
+            "environment": "devel",
+            "taskLinks": {},
+            "container": {
+              "mesos": {}
+            },
+            "metadata": [],
+            "requestedPorts": [],
+            "jobName": "testJob",
+            "priority": 0,
+            "owner": {
+              "role": "jclouds",
+              "user": "jclouds"
+            },
+            "job": {
+              "environment": "devel",
+              "role": "jclouds",
+              "name": "testJob"
+            },
+            "production": false,
+            "diskMb": 2,
+            "ramMb": 1,
+            "maxTaskFailures": 1,
+            "numCpus": 1.0,
+            "constraints": [
+              {
+                "name": "host",
+                "constraint": {
+                  "limit": {
+                    "limit": 1
+                  }
+                }
+              }
+            ]
+          },
+          "taskId": "1423788735797-jclouds-devel-testJob-0-18fd3b18-1ec2-49cf-8433-4e052259b776",
+          "instanceId": 0,
+          "assignedPorts": {},
+          "slaveHost": "10.240.111.168",
+          "slaveId": "20150209-185505-668454922-5050-2315-S2"
+        },
+        "taskEvents": [
+          {
+            "status": "PENDING",
+            "timestamp": 1423788735807,
+            "scheduler": "development-4144-bc5.c.broad-dsde-dev.internal"
+          },
+          {
+            "status": "ASSIGNED",
+            "timestamp": 1423788735850,
+            "scheduler": "development-4144-bc5.c.broad-dsde-dev.internal"
+          },
+          {
+            "status": "STARTING",
+            "timestamp": 1423788736474,
+            "message": "Initializing sandbox.",
+            "scheduler": "development-4144-bc5.c.broad-dsde-dev.internal"
+          },
+          {
+            "status": "RUNNING",
+            "timestamp": 1423788737016,
+            "scheduler": "development-4144-bc5.c.broad-dsde-dev.internal"
+          },
+          {
+            "status": "FINISHED",
+            "timestamp": 1423788744071,
+            "message": "Task finished.",
+            "scheduler": "development-4144-bc5.c.broad-dsde-dev.internal"
+          }
+        ],
+        "failureCount": 0
+      }
+    ]
+  }
+]

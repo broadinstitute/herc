@@ -1,0 +1,74 @@
+[
+    {
+        "active": [],
+        "job": "herc/jclouds/devel/testJob",
+        "inactive": [
+            {
+                "status": "FINISHED",
+                "taskEvents": [
+                    {
+                        "status": "PENDING",
+                        "timestamp": 100,
+                        "scheduler": "development-4144-bc5.c.broad-dsde-dev.internal"
+                    },
+                    {
+                        "status": "ASSIGNED",
+                        "timestamp": 101,
+                        "scheduler": "development-4144-bc5.c.broad-dsde-dev.internal"
+                    },
+                    {
+                        "status": "STARTING",
+                        "timestamp": 102,
+                        "message": "Initializing sandbox.",
+                        "scheduler": "development-4144-bc5.c.broad-dsde-dev.internal"
+                    },
+                    {
+                        "status": "RUNNING",
+                        "timestamp": 103,
+                        "scheduler": "development-4144-bc5.c.broad-dsde-dev.internal"
+                    },
+                    {
+                        "status": "FINISHED",
+                        "timestamp": 104,
+                        "message": "Task finished.",
+                        "scheduler": "development-4144-bc5.c.broad-dsde-dev.internal"
+                    }
+                ],
+                "failureCount": 0
+            },
+            {
+                "status": "KILLED",
+                "taskEvents": [
+                    {
+                        "status": "PENDING",
+                        "timestamp": 50,
+                        "scheduler": "development-4144-bc5.c.broad-dsde-dev.internal"
+                    },
+                    {
+                        "status": "ASSIGNED",
+                        "timestamp": 51,
+                        "scheduler": "development-4144-bc5.c.broad-dsde-dev.internal"
+                    },
+                    {
+                        "status": "STARTING",
+                        "timestamp": 52,
+                        "message": "Initializing sandbox.",
+                        "scheduler": "development-4144-bc5.c.broad-dsde-dev.internal"
+                    },
+                    {
+                        "status": "RESCHEDULED",
+                        "timestamp": 103,
+                        "scheduler": "development-4144-bc5.c.broad-dsde-dev.internal"
+                    },
+                    {
+                        "status": "KILLED",
+                        "timestamp": 200,
+                        "message": "Task finished.",
+                        "scheduler": "development-4144-bc5.c.broad-dsde-dev.internal"
+                    }
+                ],
+                "failureCount": 0
+            }
+        ]
+    }
+]

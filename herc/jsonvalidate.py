@@ -1,4 +1,4 @@
-import herc.async as async
+from . import async
 import jsonref
 import jsonschema
 from tornado.web import HTTPError
@@ -13,7 +13,7 @@ def extend_with_default(validator_class):
         for error in validate_properties(validator, properties, instance, schema):
             yield error
 
-        for property, subschema in properties.items():
+        for property, subschema in list(properties.items()):
             if "default" in subschema:
                 instance.setdefault(property, subschema["default"])
 
@@ -29,14 +29,14 @@ def validate(jsonstr, schemapath):
 
     # Attempt to load the schema first
     try:
-        with open(schemapath, 'r') as schemaf:
+        with open(schemapath, 'r', encoding='utf-8') as schemaf:
             schema = jsonref.load(schemaf)
     except ValueError:
         raise HTTPError(500, "Something appears to be wrong with the Aurora job schema! This is definitely a bug.")
 
     # Now validate the schema given.
     try:
-        submitrq = jsonref.loads(jsonstr.decode('utf-8'))
+        submitrq = jsonref.loads(jsonstr)
         validator_fill_defaults(schema).validate(submitrq)
         return submitrq
     except TypeError:

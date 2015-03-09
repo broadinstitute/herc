@@ -21,7 +21,9 @@ setup(name='herc',
           'jsonschema',
           'futures',
           'Jinja2>=2.2',
-          'jsonref'
+          'jsonref',
+          'pyhocon',
+          'mock'
       ],
       entry_points={'console_scripts': ['herc = herc.webservice:main']},
       zip_safe=False,

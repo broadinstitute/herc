@@ -9,10 +9,10 @@ import os.path
 import subprocess
 import json
 import time
-import herc.async as async
-import herc.jsonvalidate as jsonvalidate
-import herc.aurora as aurora
-import ssl
+from . import async
+from . import jsonvalidate
+from . import aurorasched as scheduler
+from . import config
 
 
 class base(RequestHandler):
@@ -24,7 +24,7 @@ class base(RequestHandler):
 
     def write_error(self, status_code, **kwargs):
         if self.settings.get("serve_traceback") and "exc_info" in kwargs:
-            super(base, self).write_error(status_code, kwargs)
+            super(base, self).write_error(status_code, **kwargs)
         else:
             log_msg = None
             try:
@@ -35,10 +35,10 @@ class base(RequestHandler):
                 log_msg = self._reason if log_msg is None else log_msg
 
             self.set_header('Content-Type', 'application/json')
-            self.finish("%(code)d: %(message)s" % {
+            self.finish(json.dumps({
                 "code": status_code,
                 "message": log_msg
-            })
+            }))
 
 
 class index(base):
@@ -58,7 +58,7 @@ class index(base):
         # Get doc strings for all functions in RequestHandlers.  Only non-empty doc strings for http methods are returned
         doc_strings = [inspect.getdoc(function)
             for handler in http_request_handlers
-            for function in dict(inspect.getmembers(handler)).values()
+            for function in list(dict(inspect.getmembers(handler)).values())
             if inspect.isfunction(function)
                and function.__name__ in http_methods
                and inspect.getdoc(function) is not None
@@ -76,7 +76,7 @@ class schema(base):
     def get(self):
         """GET /schema
         Returns the JSON schema used to validate job submission requests."""
-        with open("data/schemas/jobsubmit.json", 'r') as jschema:
+        with open("data/schemas/jobsubmit.json", 'r', encoding="utf-8") as jschema:
             self.write(jschema.read())
             self.finish()
 
@@ -89,8 +89,8 @@ class submit(base):
         Submits a job request. Body must be JSON that validates against the JSON schema available at GET /schema. Returns a JSON object, { "jobid" : "<new_job_id>" }."""
 
         # Validate the request against the schema, filling in defaults. This will raise an HTTPError if it fails validation.
-        jobrq = yield jsonvalidate.validate(self.request.body, "data/schemas/jobsubmit.json")
-        jobid = yield aurora.requestjob(jobrq)
+        jobrq = yield jsonvalidate.validate(self.request.body.decode('utf-8'), "data/schemas/jobsubmit.json")
+        jobid = yield scheduler.requestjob(jobrq)
 
         self.write(json.dumps({'jobid': jobid}))
         self.finish()
@@ -102,7 +102,7 @@ class status(base):
     def get(self, jobid):
         """GET /status/<jobid>
         Query Aurora and return the status of this job. 404 if not found, otherwise will return JSON with the job's current status and the time it entered that status."""
-        status = yield aurora.status(jobid)
+        status = yield scheduler.status(jobid)
         self.write(json.dumps(status, indent=1))
         self.finish()
 
@@ -146,11 +146,14 @@ def main():
         from tornado.log import enable_pretty_logging
         enable_pretty_logging()
 
+    #Force a config load so we exit early if we fail to load one.
+    config.load_config(['/etc/herc.conf', 'herc.conf'])
+
     # Generate a self-signed certificate and key if we don't already have one.
     if not os.path.isfile("herc.crt") or not os.path.isfile("herc.key"):
         subprocess.call('openssl req -x509 -newkey rsa:2048 -keyout herc.key -out herc.crt -days 36500 -nodes -subj'.split() + ["/C=US/ST=MA/L=Cambridge/O=Broad Institute/OU=Prometheus"])
 
-    app = Application(endpoint_mapping.items(), compress_response=True, debug=cli.debug)
+    app = Application(list(endpoint_mapping.items()), compress_response=True, debug=cli.debug)
     ili = IOLoop.instance()
     async.io_loop = ili  # set up io_loop for async executor
 
