@@ -1,9 +1,9 @@
 full_submit = {
 	'processes' : [
-		{ 'name' : "locdown_0", 'cmd' : 'echo localize "gcs://foo" "/foo">>localize' },
-		{ 'name' : "locdown_1", 'cmd' : 'echo localize "boss://bar" "/bar">>localize' },
+		{ 'name' : "locdown_0", 'cmd' : 'localizer "gcs://foo" "/foo"' },
+		{ 'name' : "locdown_1", 'cmd' : 'localizer "boss://bar" "/bar"' },
 		{ 'name' : "TESTJOB_ps", 'cmd' : 'echo Hello herc! > /baz' },
-		{ 'name' : "locup_0", 'cmd' : 'echo localize "/baz" "gcs://baz">>localize' }
+		{ 'name' : "locup_0", 'cmd' : 'localizer "/baz" "gcs://baz"' }
 	],
     'tasks' : [{    'name' : 'TESTJOB_task',
                     'type' : 'SequentialTask',
