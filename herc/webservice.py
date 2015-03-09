@@ -147,7 +147,7 @@ def main():
         enable_pretty_logging()
 
     #Force a config load so we exit early if we fail to load one.
-    config.load_config()
+    config.load_config(['/etc/herc.conf', 'herc.conf'])
 
     # Generate a self-signed certificate and key if we don't already have one.
     if not os.path.isfile("herc.crt") or not os.path.isfile("herc.key"):
