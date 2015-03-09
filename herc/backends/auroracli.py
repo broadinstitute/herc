@@ -4,6 +4,7 @@ import tempfile
 import subprocess
 import os
 import time
+from .. import config
 from .aurorabackend import BackendInitException
 
 aurora_checked = False
@@ -33,9 +34,10 @@ class AuroraCLI(object):
 
         self.loader = FileSystemLoader('jobdefs')
         self.env = Environment(loader=self.loader, trim_blocks=True, lstrip_blocks=True)
+        self.localize_cmd = config.get("auroracli.localizecmd")
 
     @staticmethod
-    def _build_jinja_dict(jobid, jobrq):
+    def _build_jinja_dict(jobid, jobrq, localize_cmd):
         """Takes an ID and job request object and converts it into a Python object for passing to Jinja."""
 
         # the job request we're going to fill in
@@ -43,12 +45,12 @@ class AuroraCLI(object):
 
         # processes to localize down from the "inputs" part of the schema
         downloads = [{'name': "locdown_" + str(idx),
-                      'cmd': 'echo localize "' + path['cloud'] + '" "' + path['local'] + '">>localize'}
+                      'cmd': localize_cmd + ' "' + path['cloud'] + '" "' + path['local'] + '"'}
                      for (idx, path) in enumerate(jobrq['inputs'])]
 
         # processes to localize back up to the cloud from the "outputs" part of the schema
         uploads = [{'name': "locup_" + str(idx),
-                    'cmd': 'echo localize "' + path['local'] + '" "' + path['cloud'] + '">>localize'}
+                    'cmd': localize_cmd + ' "' + path['local'] + '" "' + path['cloud'] + '"'}
                    for (idx, path) in enumerate(jobrq['outputs'])]
 
         # list of processes: download, run the commandline, upload
@@ -82,7 +84,7 @@ class AuroraCLI(object):
         return jr
 
     def requestjob(self, jobid, jobrq):
-        jr = self._build_jinja_dict(jobid, jobrq)
+        jr = self._build_jinja_dict(jobid, jobrq, self.localize_cmd)
 
         template = self.env.get_template('jobtemplate.aurora')
         tmpfile = tempfile.NamedTemporaryFile(suffix=".aurora")

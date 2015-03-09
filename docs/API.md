@@ -95,7 +95,7 @@ Below is an example payload:
 {
     "inputs" : [
         {
-            "cloud" : "gcs://foo",
+            "cloud" : "gs://foo",
             "local" : "/foo"
         },
         {
@@ -114,7 +114,7 @@ Below is an example payload:
     },
     "outputs" : [
         {
-            "cloud" : "gcs://baz",
+            "cloud" : "gs://baz",
             "local" : "/baz"
         }
     ]
@@ -122,7 +122,7 @@ Below is an example payload:
 ```
 
 ##### `inputs`
-A list of input files to localize. (If you don't have any, just pass an empty list.) You can have as many of these as you like. The values for `cloud` must be either `gcs://` or `boss://` file paths. The values for `local` must be local file paths.
+A list of input files to localize. (If you don't have any, just pass an empty list.) You can have as many of these as you like. The values for `cloud` must be either `gs://` or `boss://` file paths. The values for `local` must be local file paths.
 
 #####`commandline`
 The command line to run inside the docker.
@@ -134,7 +134,7 @@ The docker image to pull and spin up. **This docker image must have Python 2.7 i
 The list of Mesos resources to request for this task. `cpus`, `mem`, and `disk` are mandatory; `memunit` and `diskunit` are optional and will be set to `"MB"` if you don't specify them.
 
 #####`outputs`
-A list of files to upload back to the cloud after the work is done. The value for `cloud` must be a `gcs://` file path (`boss://` isn't supported for upload).
+A list of files to upload back to the cloud after the work is done. The value for `cloud` must be a `gs://` file path (`boss://` isn't supported for upload).
 
 ### Example
 
