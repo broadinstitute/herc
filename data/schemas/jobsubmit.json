@@ -5,7 +5,7 @@
         "pathpair": {
             "type": "object",
             "properties": {
-                "cloud": { "type": "string", "pattern": "(^gcs://(.+))|(^boss://(.+))" },
+                "cloud": { "type": "string", "pattern": "(^gs://(.+))|(^boss://(.+))" },
                 "local": { "type": "string", "pattern" : "^/(.*)" }
             },
             "required": ["cloud", "local"],
