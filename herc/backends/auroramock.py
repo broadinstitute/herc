@@ -1,6 +1,6 @@
 
 
-class AuroraStub(object):
+class AuroraMock(object):
     """Mock Aurora backend that returns correct-looking data."""
 
     def __init__(self, fakestatuspath = "data/stub_aurora_jobstatus.json"):

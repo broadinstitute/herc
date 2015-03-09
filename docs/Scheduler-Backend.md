@@ -23,7 +23,7 @@ Each backend uses a different method to do this:
 
 * `AuroraCLI`: uses the Aurora client executable;
 * `AuroraThrift` (yet to be written, but coming soon!): uses Aurora's Thrift interface;
-* `AuroraStub`: returns the same pre-packaged response for every request (for testing purposes). 
+* `AuroraMock`: returns the same pre-packaged response for every request (for testing purposes). 
 
 ## The backend interface
 

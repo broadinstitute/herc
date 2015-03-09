@@ -1,5 +1,5 @@
 __author__ = 'hussein'
 
 from .auroracli import AuroraCLI
-from .aurorastub import AuroraStub
+from .auroramock import AuroraMock
 from .aurorabackend import BackendInitException
