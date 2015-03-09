@@ -35,6 +35,11 @@ class AuroraCLI(object):
         self.loader = FileSystemLoader('jobdefs')
         self.env = Environment(loader=self.loader, trim_blocks=True, lstrip_blocks=True)
         self.localize_cmd = config.get("auroracli.localizecmd")
+        self.submit_cmd = config.get("auroracli.submitcmd").split()
+        self.status_cmd = config.get("auroracli.statuscmd").split()
+        self.cluster = config.get("aurora.cluster.name")
+        self.role = config.get("aurora.cluster.role")
+        self.env = config.get("aurora.cluster.env")
 
     @staticmethod
     def _build_jinja_dict(jobid, jobrq, localize_cmd):
@@ -97,7 +102,8 @@ class AuroraCLI(object):
         # what does aurora return here?
         # we could parse the output...
         then = time.time()
-        subprocess.call(['aurora', 'job', 'create', 'herc/jclouds/devel/' + jobid, tmpfile.name])
+        #boils down to: aurora job create cluster/role/env/jobid jobfile.tmp
+        subprocess.call(self.submit_cmd + ['/'.join([self.cluster, self.role, self.env, jobid]), tmpfile.name])
         auroratime = time.time() - then
 
         # don't do this until after the job is submitted
@@ -105,6 +111,7 @@ class AuroraCLI(object):
 
     def status(self, jobid):
         then = time.time()
-        resjson = subprocess.check_output(['aurora', 'job', 'status', 'herc/jclouds/devel/' + jobid, "--write-json"])
+        #boils down to: aurora job status cluster/role/env/jobid --write-json
+        resjson = subprocess.check_output(self.status_cmd + ['/'.join([self.cluster, self.role, self.env, jobid]), "--write-json"])
         auroratime = time.time() - then
         return resjson
