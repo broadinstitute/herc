@@ -2,7 +2,7 @@ import uuid
 import json
 import re
 from tornado.web import HTTPError
-import _thread
+import threading
 from . import async
 from . import config
 from . import backends
@@ -12,7 +12,7 @@ from . import backends
 #Ensures that two Aurora commands don't interfere by e.g. attempting to write to the same socket.
 aurora_backends = dict()
 def get_backend():
-    thrid = _thread.get_ident()
+    thrid = threading.get_ident()
     try:
         return aurora_backends[thrid]
     except KeyError:
