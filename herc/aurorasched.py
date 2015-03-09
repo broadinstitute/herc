@@ -3,10 +3,22 @@ import json
 import re
 from tornado.web import HTTPError
 import threading
+import importlib
 from . import async
 from . import config
 from . import backends
 
+
+def _importclass(classpath):
+    """Turns a string representing a Python class into the actual class object.
+    May return ImportError or AttributeError if you do something that's not legit."""
+    path = classpath.rsplit( ".", 1 )
+
+    # load the module, will raise ImportError if module cannot be loaded
+    m = importlib.import_module(path[0])
+
+    # get the class, will raise AttributeError if class cannot be found
+    return getattr(m, path[1])
 
 #Dict of Aurora backend instances keyed by thread ID.
 #Ensures that two Aurora commands don't interfere by e.g. attempting to write to the same socket.
@@ -20,7 +32,7 @@ def get_backend():
         backends_list = config.get("scheduler.backends")
         for backend_path in backends_list:
             try:
-                backend_class = config.importclass(backend_path)
+                backend_class = _importclass(backend_path)
                 print(backend_class)
                 aurora_backends[thrid] = backend_class()
                 break #bail as soon as we get a match
