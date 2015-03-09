@@ -1,9 +1,9 @@
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
+from tornado import ioloop
 from tornado.concurrent import run_on_executor
 from tornado import gen
 from functools import wraps
 
-io_loop = None  # set this to io_loop!
 executors = {
     'short': ThreadPoolExecutor(max_workers=8),  # For little things to avoid blocking the main thread
     'long': ThreadPoolExecutor(max_workers=4),  # For longer work, like file I/O
@@ -38,7 +38,7 @@ class Task:
 
     def __init__(self, executor):
         self.executor = executors[executor]
-        self.io_loop = io_loop
+        self.io_loop = ioloop.IOLoop.instance()
 
     @run_on_executor
     def run(self, fn, *args, **kwargs):

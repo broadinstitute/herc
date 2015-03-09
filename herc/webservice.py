@@ -155,7 +155,6 @@ def main():
 
     app = Application(list(endpoint_mapping.items()), compress_response=True, debug=cli.debug)
     ili = IOLoop.instance()
-    async.io_loop = ili  # set up io_loop for async executor
 
     http_server = httpserver.HTTPServer(app,
                                         ssl_options={
