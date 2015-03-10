@@ -114,4 +114,4 @@ class AuroraCLI(object):
         #boils down to: aurora job status cluster/role/env/jobid --write-json
         resjson = subprocess.check_output(self.status_cmd + ['/'.join([self.cluster, self.role, self.env, jobid]), "--write-json"])
         auroratime = time.time() - then
-        return resjson
+        return resjson.decode('utf-8')
