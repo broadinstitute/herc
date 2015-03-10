@@ -102,12 +102,12 @@ def determine_true_status(jobstatus):
             # Over memory.
             matches = re.findall(r"Memory limit exceeded: Requested (\S+), Used (\S+).", failevt['message'])
             assert len(matches) > 0
-            return "MEM_EXCEEDED", {'requested': matches[0][0], 'used': matches[0][1]}
+            return "FAILED", {'reason' : "MEM_EXCEEDED", 'requested': matches[0][0], 'used': matches[0][1]}
         elif failevt['message'].startswith("Disk limit exceeded"):
             # Over disk.
             matches = re.findall(r"Disk limit exceeded.  Reserved (\S+) bytes vs used (\S+) bytes.", failevt['message'])
             assert len(matches) > 0
-            return "DISK_EXCEEDED", {'requested': matches[0][0] + "BYTES", 'used': matches[0][1] + "BYTES"}
+            return "FAILED", {'reason' : "DISK_EXCEEDED", 'requested': matches[0][0] + "BYTES", 'used': matches[0][1] + "BYTES"}
         else:
             return status, {}
     else:

@@ -60,7 +60,8 @@ class TestScheduler(tornado.testing.AsyncTestCase):
         failed_status = self.build_mock_jobstatus([ "INIT", "PENDING", "ASSIGNED", "RUNNING", "FAILED" ],
                                                   failmsg = "Memory limit exceeded: Requested 128MB, Used 130MB." )
         aurora_status = scheduler.determine_true_status(failed_status)
-        self.assertEqual( aurora_status[0], "MEM_EXCEEDED" )
+        self.assertEqual( aurora_status[0], "FAILED" )
+        self.assertEqual( aurora_status[1]['reason'], "MEM_EXCEEDED" )
         self.assertEqual( aurora_status[1]['requested'], "128MB" )
         self.assertEqual( aurora_status[1]['used'], "130MB" )
 
@@ -69,7 +70,8 @@ class TestScheduler(tornado.testing.AsyncTestCase):
         failed_status = self.build_mock_jobstatus([ "INIT", "PENDING", "ASSIGNED", "RUNNING", "FAILED" ],
                                                   failmsg = "Disk limit exceeded.  Reserved 1234 bytes vs used 2345 bytes." )
         aurora_status = scheduler.determine_true_status(failed_status)
-        self.assertEqual( aurora_status[0], "DISK_EXCEEDED" )
+        self.assertEqual( aurora_status[0], "FAILED" )
+        self.assertEqual( aurora_status[1]['reason'], "DISK_EXCEEDED" )
         self.assertEqual( aurora_status[1]['requested'], "1234BYTES" )
         self.assertEqual( aurora_status[1]['used'], "2345BYTES" )
 

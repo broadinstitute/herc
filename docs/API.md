@@ -172,8 +172,9 @@ Query Aurora and return the status of the job id. Will return HTTP 404 if not fo
 Because Aurora's definition of "terminal states" doesn't preclude a job being rescheduled, Herc may return a different status that more accurately represents what's happening with the job. Here's what you need to know:
 
 * `FINISHED`, `FAILED`, `KILLED`, `MEM_EXCEEDED` and `DISK_EXCEEDED` are the only terminal states. Any other state is non-terminal. You will never see the Aurora state `LOST`; Herc turns it into either `RESCHEDULED` or `KILLED` (see below).
+* When this endpoint returns `FAILED`, the JSON payload *may* include additional fields with more information. You should check the existence, and then value of the `response` field:
+  * `"response" : "MEM_EXCEEDED"` and `"response" : "DISK_EXCEEDED"` indicate the job failed because it exceeded the amount of memory or disk it requested in its Resources struct. In this case the JSON payload will contain two additional fields, `requested` and `used`; the values of both are strings, e.g. `128MB` or `3145728BYTES`. An example of this is below.
 * `RESCHEDULED` is a non-terminal state added by Herc that indicates Aurora is in the process of rescheduling a job. This can happen when a job gets lost, pre-empted by a higher priority job, or the node it was running on is put into maintenance.
-* `MEM_EXCEEDED` and `DISK_EXCEEDED` are terminal states that indicate the job failed because it exceeded the amount of memory or disk it requested in its Resources struct. In this case the JSON payload will contain two additional fields, `requested` and `used`; the values of both are strings, e.g. `128MB` or `3145728BYTES`.
 * `KILLED` exclusively means "killed on request by a user or admin". It will be returned even if the job completes, fails, or gets lost before or during the execution of the kill request.
 
 ### Example
@@ -205,6 +206,31 @@ Vary: Accept-Encoding
     "jobid": "job_795aca97_8678_4af7_ade1_e4fadd7bff78",
     "status": "PENDING",
     "time": 1424966044800
+}
+```
+
+In the event that a job has failed because it ran out of memory:
+
+Response:
+```http
+HTTP/1.1 200 OK
+Access-Control-Allow-Credentials: true
+Access-Control-Allow-Origin: *
+Content-Encoding: gzip
+Content-Length: 115
+Content-Type: application/json
+Date: Thu, 26 Feb 2015 16:11:32 GMT
+Etag: "6965df488267a089cf5b2e245bb38d33c4628551"
+Server: TornadoServer/4.1
+Vary: Accept-Encoding
+
+{
+    "jobid": "job_795aca97_8678_4af7_ade1_e4fadd7bff78",
+    "status": "FAILED",
+    "time": 1424966044800,
+    "reason": "MEM_EXCEEDED",
+    "requested": "128MB",
+    "used": "137MB"
 }
 ```
 
