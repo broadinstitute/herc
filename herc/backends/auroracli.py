@@ -33,7 +33,7 @@ class AuroraCLI(object):
             raise BackendInitException("Aurora client not found, cannot initialize AuroraCLI backend")
 
         self.loader = FileSystemLoader('jobdefs')
-        self.env = Environment(loader=self.loader, trim_blocks=True, lstrip_blocks=True)
+        self.template_env = Environment(loader=self.loader, trim_blocks=True, lstrip_blocks=True)
         self.localize_cmd = config.get("auroracli.localizecmd")
         self.submit_cmd = config.get("auroracli.submitcmd").split()
         self.status_cmd = config.get("auroracli.statuscmd").split()
@@ -91,7 +91,7 @@ class AuroraCLI(object):
     def requestjob(self, jobid, jobrq):
         jr = self._build_jinja_dict(jobid, jobrq, self.localize_cmd)
 
-        template = self.env.get_template('jobtemplate.aurora')
+        template = self.template_env.get_template('jobtemplate.aurora')
         tmpfile = tempfile.NamedTemporaryFile(suffix=".aurora")
 
         # might error.
