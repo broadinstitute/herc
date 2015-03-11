@@ -27,6 +27,16 @@
             "type": "array",
             "items": { "$ref": "#/definitions/pathpair" }
         },
+        "stdout": {
+            "type": "string",
+            "pattern": "^gs://(.+)",
+            "default": ""
+        },
+        "stderr": {
+            "type": "string",
+            "pattern": "^gs://(.+)",
+            "default": ""
+        },
         "resources": {
             "type" : "object",
             "properties" : {

@@ -4,6 +4,7 @@ from herc.backends import AuroraCLI
 import json
 
 class TestAuroraCLI(TestCase):
+    maxDiff = None
     def test_build_jinjadict(self):
         """Test that we transform a JSON request into a Jinja template fill correctly."""
         with open('tests/data/full_submit.json', 'r', encoding="utf-8") as fullsub:

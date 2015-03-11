@@ -22,7 +22,7 @@ class TestValidator(tornado.testing.AsyncTestCase):
 	def test_validate_partialrq(self):
 		"""Tests that a correct, partial submission request validates, and is returned with missing data supplied."""
 		partialrq = get_str('tests/data/partial_submit.json')
-		fullrq = get_str('tests/data/full_submit.json')
+		fullrq = get_str('tests/data/default_submit.json')
 
 		validated = yield jsonvalidate.validate( partialrq, "data/schemas/jobsubmit.json" )
 		self.assertEqual( validated, json.loads(fullrq), "json returned from jsonvalidate should have defaults filled in" )
