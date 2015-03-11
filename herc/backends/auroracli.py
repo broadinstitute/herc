@@ -4,11 +4,30 @@ import tempfile
 import subprocess
 import os
 import time
+import logging
+import arrow
 from .. import config
 from .aurorabackend import BackendInitException
 
 aurora_checked = False
 aurora_exists = True
+
+log = logging.getLogger('herc.backends.auroracli')
+
+def run(cmd, cwd=None):
+    start = arrow.utcnow()
+    proc = subprocess.Popen(
+        cmd,
+        universal_newlines=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        close_fds=True,
+        cwd=cwd
+    )
+    stdout, stderr = proc.communicate()
+    elapsed = arrow.utcnow() - start
+    log.info('run(): [time={0}, rc={1}] {2}'.format(elapsed, proc.returncode, ' '.join(cmd)))
+    return (proc.returncode, stdout.strip(' \n'), stderr.strip(' \n'))
 
 def _aurora_installed():
     """Utility method to determine if the Aurora client actually exists."""
@@ -18,8 +37,7 @@ def _aurora_installed():
     if not aurora_checked:
         aurora_checked = True
         try:
-            with open('/dev/null', 'w') as null:
-                subprocess.call(["aurora"], stdout=null, stderr=null)
+            run(['aurora'])
             aurora_exists = True
         except OSError:
             aurora_exists = False
@@ -101,17 +119,13 @@ class AuroraCLI(object):
 
         # what does aurora return here?
         # we could parse the output...
-        then = time.time()
-        #boils down to: aurora job create cluster/role/env/jobid jobfile.tmp
-        subprocess.call(self.submit_cmd + ['/'.join([self.cluster, self.role, self.env, jobid]), tmpfile.name])
-        auroratime = time.time() - then
+        # Boils down to: aurora job create cluster/role/env/jobid jobfile.tmp
+        (rc, stdout, stderr) = run(self.submit_cmd + ['/'.join([self.cluster, self.role, self.env, jobid]), tmpfile.name])
 
         # don't do this until after the job is submitted
         tmpfile.close()
 
     def status(self, jobid):
-        then = time.time()
-        #boils down to: aurora job status cluster/role/env/jobid --write-json
-        resjson = subprocess.check_output(self.status_cmd + ['/'.join([self.cluster, self.role, self.env, jobid]), "--write-json"])
-        auroratime = time.time() - then
-        return resjson.decode('utf-8')
+        # Boils down to: aurora job status cluster/role/env/jobid --write-json
+        (rc, stdout, stderr) = run(self.status_cmd + ['/'.join([self.cluster, self.role, self.env, jobid]), "--write-json"])
+        return stdout

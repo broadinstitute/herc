@@ -33,7 +33,6 @@ def get_backend():
         for backend_path in backends_list:
             try:
                 backend_class = _importclass(backend_path)
-                print(backend_class)
                 aurora_backends[thrid] = backend_class()
                 break #bail as soon as we get a match
             except (ImportError, AttributeError):
