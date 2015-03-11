@@ -23,7 +23,8 @@ setup(name='herc',
           'Jinja2>=2.2',
           'jsonref',
           'pyhocon',
-          'mock'
+          'mock',
+          'arrow'
       ],
       entry_points={'console_scripts': ['herc = herc.webservice:main']},
       zip_safe=False,
