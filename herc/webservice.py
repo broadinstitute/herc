@@ -9,6 +9,7 @@ import os.path
 import subprocess
 import json
 import time
+import logging
 from . import async
 from . import jsonvalidate
 from . import aurorasched as scheduler
@@ -139,7 +140,24 @@ def main():
     parser.add_argument(
         '-p', '--port', default=4372, help='Server TCP port'
     )
+    parser.add_argument(
+        '-l', '--log', default='herc.log', help='Location of log file'
+    )
+    parser.add_argument(
+        '-c', '--config', default='/etc/herc.conf,herc.conf', help='Comma separated list of config file locations'
+    )
     cli = parser.parse_args()
+
+    log_formatter = logging.Formatter("%(asctime)s [%(threadName)s] [%(levelname)s]  %(message)s")
+    root_logger = logging.getLogger()
+    file_logger = logging.FileHandler(cli.log)
+    file_logger.setFormatter(log_formatter)
+    file_logger.setLevel(logging.DEBUG)
+    root_logger.addHandler(file_logger)
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(log_formatter)
+    console_handler.setLevel(logging.DEBUG)
+    root_logger.addHandler(console_handler)
 
     if cli.debug:
         print('Started Herc in DEBUG mode (port {0})'.format(cli.port))
@@ -147,7 +165,7 @@ def main():
         enable_pretty_logging()
 
     #Force a config load so we exit early if we fail to load one.
-    config.load_config(['/etc/herc.conf', 'herc.conf'])
+    config.load_config(cli.config.split(','))
 
     # Generate a self-signed certificate and key if we don't already have one.
     if not os.path.isfile("herc.crt") or not os.path.isfile("herc.key"):
