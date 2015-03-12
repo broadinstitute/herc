@@ -138,6 +138,9 @@ def main():
         '-D', '--debug', required=False, default=False, action='store_true', help='Run server in foreground'
     )
     parser.add_argument(
+        '-s', '--ssl', required=False, default=False, action='store_true', help='Run with SSL.  Will auto-generate keys (herc.key, herc.cert) if they don\'t exist already'
+    )
+    parser.add_argument(
         '-p', '--port', default=4372, help='Server TCP port'
     )
     parser.add_argument(
@@ -168,17 +171,18 @@ def main():
     config.load_config(cli.config.split(','))
 
     # Generate a self-signed certificate and key if we don't already have one.
-    if not os.path.isfile("herc.crt") or not os.path.isfile("herc.key"):
-        subprocess.call('openssl req -x509 -newkey rsa:2048 -keyout herc.key -out herc.crt -days 36500 -nodes -subj'.split() + ["/C=US/ST=MA/L=Cambridge/O=Broad Institute/OU=Prometheus"])
+    if cli.ssl:
+        if not os.path.isfile("herc.crt") or not os.path.isfile("herc.key"):
+            subprocess.call('openssl req -x509 -newkey rsa:2048 -keyout herc.key -out herc.crt -days 36500 -nodes -subj'.split() + ["/C=US/ST=MA/L=Cambridge/O=Broad Institute/OU=Prometheus"])
+        ssl_options = {"certfile": "herc.crt", "keyfile": "herc.key"}
+    else:
+        ssl_options = None
+
 
     app = Application(list(endpoint_mapping.items()), compress_response=True, debug=cli.debug)
     ili = IOLoop.instance()
 
-    http_server = httpserver.HTTPServer(app,
-                                        ssl_options={
-                                            "certfile": "herc.crt",
-                                            "keyfile": "herc.key"},
-                                        io_loop=ili)
+    http_server = httpserver.HTTPServer(app, ssl_options, io_loop=ili)
     http_server.listen(cli.port)
 
     # Trigger a callback that does nothing every half-second so KeyboardInterrupts can actually get through
