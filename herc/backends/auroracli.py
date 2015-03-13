@@ -98,8 +98,8 @@ class AuroraCLI(object):
         # The last task in this list will be used as the task to run on the job, so if we ever do use Tasks.concat() or
         # combine(), that should be the final task in this list.
         jr['tasks'] = [{'name': jobid + '_task',
-                        'type': 'SequentialTask',
                         'processes': [p['name'] for p in jr['processes']] + [p['name'] for p in jr['finalizers']],
+                        'ordering': [p['name'] for p in jr['processes']],
                         'cpus': jobrq['resources']['cpus'],
                         'mem': jobrq['resources']['mem'],
                         'memunit': jobrq['resources']['memunit'],

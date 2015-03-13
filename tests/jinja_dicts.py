@@ -10,8 +10,8 @@ full_submit = {
         { 'name' : "__locup_stderr", 'cmd' : 'localizer ".logs/TESTJOB_ps/0/stderr" "gs://stderr"' }
     ],
     'tasks' : [{    'name' : 'TESTJOB_task',
-                    'type' : 'SequentialTask',
                     'processes' : [ "locdown_0", "locdown_1", "TESTJOB_ps", "locup_0", "__locup_stdout", "__locup_stderr" ],
+                    'ordering' : [ "locdown_0", "locdown_1", "TESTJOB_ps", "locup_0" ],
                     'cpus' : 1,
                     'mem'  : 16,
                     'memunit' : "MB",
