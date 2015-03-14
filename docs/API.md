@@ -117,7 +117,9 @@ Below is an example payload:
             "cloud" : "gs://baz",
             "local" : "/baz"
         }
-    ]
+    ],
+    "stdout" : "gs://stdout",
+    "stderr" : "gs://stderr"
 }
 ```
 
@@ -135,6 +137,9 @@ The list of Mesos resources to request for this task. `cpus`, `mem`, and `disk` 
 
 #####`outputs`
 A list of files to upload back to the cloud after the work is done. The value for `cloud` must be a `gs://` file path (`boss://` isn't supported for upload).
+
+#####`stdout` and `stderr`
+If these are specified, the stdout or stderr output from the `commandline` will be uploaded to the cloud at these `gs://` paths.
 
 ### Example
 
@@ -171,9 +176,9 @@ Query Aurora and return the status of the job id. Will return HTTP 404 if not fo
 
 Because Aurora's definition of "terminal states" doesn't preclude a job being rescheduled, Herc may return a different status that more accurately represents what's happening with the job. Here's what you need to know:
 
-* `FINISHED`, `FAILED`, `KILLED`, `MEM_EXCEEDED` and `DISK_EXCEEDED` are the only terminal states. Any other state is non-terminal. You will never see the Aurora state `LOST`; Herc turns it into either `RESCHEDULED` or `KILLED` (see below).
-* When this endpoint returns `FAILED`, the JSON payload *may* include additional fields with more information. You should check the existence, and then value of the `response` field:
-  * `"response" : "MEM_EXCEEDED"` and `"response" : "DISK_EXCEEDED"` indicate the job failed because it exceeded the amount of memory or disk it requested in its Resources struct. In this case the JSON payload will contain two additional fields, `requested` and `used`; the values of both are strings, e.g. `128MB` or `3145728BYTES`. An example of this is below.
+* `FINISHED`, `FAILED` and `KILLED` are the only terminal states. Any other state is non-terminal. You will never see the Aurora state `LOST`; Herc turns it into either `RESCHEDULED` or `KILLED` (see below).
+* When this endpoint returns `FAILED`, the JSON payload *may* include additional fields with more information. You should check the existence, and then value of the `reason` field:
+  * `"reason" : "MEM_EXCEEDED"` and `"response" : "DISK_EXCEEDED"` indicate the job failed because it exceeded the amount of memory or disk it requested in its Resources struct. In this case the JSON payload will contain two additional fields, `requested` and `used`; the values of both are strings, e.g. `128MB` or `3145728BYTES`. An example of this is below.
 * `RESCHEDULED` is a non-terminal state added by Herc that indicates Aurora is in the process of rescheduling a job. This can happen when a job gets lost, pre-empted by a higher priority job, or the node it was running on is put into maintenance.
 * `KILLED` exclusively means "killed on request by a user or admin". It will be returned even if the job completes, fails, or gets lost before or during the execution of the kill request.
 
