@@ -24,7 +24,8 @@ setup(name='herc',
           'jsonref',
           'pyhocon',
           'mock',
-          'arrow'
+          'arrow',
+          'nose'
       ],
       entry_points={'console_scripts': ['herc = herc.webservice:main']},
       zip_safe=False,
