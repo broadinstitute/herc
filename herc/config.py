@@ -44,7 +44,7 @@ def get(*args, **kwargs):
     return _config.get(*args, **kwargs)
 
 def put(*args, **kwargs):
-    """Gets a value from the config file."""
+    """Puts a value into the config file."""
     if _config is None:
         raise ConfigNotLoadedException("No config loaded. Did you forget to call config.load_config()?")
     return _config.put(*args, **kwargs)

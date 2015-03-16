@@ -170,13 +170,15 @@ def main():
 
     log_formatter = logging.Formatter("%(asctime)s [%(threadName)s] [%(levelname)s]  %(message)s")
     root_logger = logging.getLogger()
-    if not os.access(config.get('log_file'), os.W_OK):
-        print('WARNING: coult not open log file for writing: ' + config.get('log_file'))
-    else:
+
+    try:
         file_logger = logging.FileHandler(config.get('log_file'))
         file_logger.setFormatter(log_formatter)
         file_logger.setLevel(logging.DEBUG)
         root_logger.addHandler(file_logger)
+    except PermissionError:
+        print('WARNING: coult not open log file for writing: ' + config.get('log_file'))
+
     if config.get('debug'):
         console_handler = logging.StreamHandler()
         console_handler.setFormatter(log_formatter)
