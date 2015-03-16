@@ -25,7 +25,8 @@ setup(name='herc',
           'pyhocon',
           'mock',
           'arrow',
-          'nose'
+          'nose',
+          'thriftpy'
       ],
       entry_points={'console_scripts': ['herc = herc.webservice:main']},
       zip_safe=False,
