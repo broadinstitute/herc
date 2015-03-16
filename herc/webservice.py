@@ -184,7 +184,7 @@ def main():
         console_handler.setFormatter(log_formatter)
         console_handler.setLevel(logging.DEBUG)
         root_logger.addHandler(console_handler)
-        
+
         print('Started Herc in DEBUG mode (port {0})'.format(config.get('port')))
         from tornado.log import enable_pretty_logging
         enable_pretty_logging()
@@ -198,7 +198,7 @@ def main():
         ssl_options = None
 
 
-    app = Application(list(endpoint_mapping.items()), compress_response=True, debug=config.get('debug'))
+    app = Application(list(endpoint_mapping.items()), compress_response=True, debug=config.get('debug'), serve_traceback=False)
     ili = IOLoop.instance()
 
     http_server = httpserver.HTTPServer(app, ssl_options, io_loop=ili)
