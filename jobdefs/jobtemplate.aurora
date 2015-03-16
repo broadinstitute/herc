@@ -4,10 +4,15 @@ import os
 {{ ps.name }} = Process( name = '{{ ps.name }}', cmdline = '{{ ps.cmd }}' )
 {% endfor %}
 
+{% for ps in finalizers %}
+{{ ps.name }} = Process( name = '{{ ps.name }}', cmdline = '{{ ps.cmd }}', final=True )
+{% endfor %}
+
 {% for task in tasks %}
-{{ task.name }} = {{ task.type }}(
+{{ task.name }} = Task(
     name = '{{ task.name }}',
     processes = [ {{ task.processes|join(', ') }} ],
+    constraints = order( {{ task.ordering|join(', ') }} ),
     resources = Resources(  cpu = {{ task.cpus }},
                             ram = {{ task.mem }}*{{ task.memunit }},
                             disk = {{ task.disk }}*{{ task.diskunit }} )

@@ -76,16 +76,30 @@ class AuroraCLI(object):
                     'cmd': localize_cmd + ' "' + path['local'] + '" "' + path['cloud'] + '"'}
                    for (idx, path) in enumerate(jobrq['outputs'])]
 
-        # list of processes: download, run the commandline, upload
+        # list of processes: download inputs, run the commandline, upload outputs
         jr['processes'] = downloads + [{'name': jobid + '_ps', 'cmd': jobrq['commandline']}] + uploads
+
+        #finalizing processes to localize stdout and stderr up to gcs
+        #these are guaranteed to run even if the task fails because one of the other processes fail.
+        jr['finalizers'] = []
+        if jobrq['stdout'] != "":
+            jr['finalizers'].append({
+                'name' : "__locup_stdout",
+                'cmd' : localize_cmd + ' ".logs/' + jobid + '_ps/0/stdout" "' + jobrq['stdout'] + '"'
+            })
+        if jobrq['stderr'] != "":
+            jr['finalizers'].append({
+                'name' : "__locup_stderr",
+                'cmd' : localize_cmd + ' ".logs/' + jobid + '_ps/0/stderr" "' + jobrq['stderr'] + '"'
+            })
 
         # Currently all we need is one task, made of the list of download + run + upload processes.
         # We don't (yet?) need to do anything clever with Tasks.concat() or combine(), and the template doesn't support it.
         # The last task in this list will be used as the task to run on the job, so if we ever do use Tasks.concat() or
         # combine(), that should be the final task in this list.
         jr['tasks'] = [{'name': jobid + '_task',
-                        'type': 'SequentialTask',
-                        'processes': [p['name'] for p in jr['processes']],
+                        'processes': [p['name'] for p in jr['processes']] + [p['name'] for p in jr['finalizers']],
+                        'ordering': [p['name'] for p in jr['processes']],
                         'cpus': jobrq['resources']['cpus'],
                         'mem': jobrq['resources']['mem'],
                         'memunit': jobrq['resources']['memunit'],

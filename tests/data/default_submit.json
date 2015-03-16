@@ -18,8 +18,8 @@
         "disk" : 1,
         "diskunit" : "MB"
     },
-    "stdout" : "gs://stdout",
-    "stderr" : "gs://stderr",
+    "stdout" : "",
+    "stderr" : "",
     "outputs" : [
         {
             "cloud" : "gs://baz",
