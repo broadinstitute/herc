@@ -43,6 +43,12 @@ def get(*args, **kwargs):
         raise ConfigNotLoadedException("No config loaded. Did you forget to call config.load_config()?")
     return _config.get(*args, **kwargs)
 
+def put(*args, **kwargs):
+    """Gets a value from the config file."""
+    if _config is None:
+        raise ConfigNotLoadedException("No config loaded. Did you forget to call config.load_config()?")
+    return _config.put(*args, **kwargs)
+
 def safe_get(*args, **kwargs):
     """Gets a value from the config file, and returns None (rather than raising an exception) if it doesn't exist."""
     try:
