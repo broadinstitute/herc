@@ -26,7 +26,8 @@ setup(name='herc',
           'mock',
           'arrow',
           'nose',
-          'thriftpy'
+          'thriftpy',
+          'requests'
       ],
       entry_points={'console_scripts': ['herc = herc.webservice:main']},
       zip_safe=False,
