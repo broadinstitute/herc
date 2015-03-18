@@ -1,4 +1,4 @@
-from thriftpy.transport import TTransportBase, TTransportException
+from thrift.transport.TTransport import TTransportBase, TTransportException
 import requests
 import requests.exceptions
 import logging
@@ -30,15 +30,16 @@ class THTTPClient(TTransportBase):
 
     def read(self, size):
         log.info("Reading " + str(size) + " bytes")
-        self._rbuf.read(size)
+        return self._rbuf.read(size)
 
     def write(self, buff):
         log.info("Writing: " + str(buff))
-        self._rbuf.write(buff)
+        self._wbuf.write(buff)
 
     def flush(self):
         data = self._wbuf.getvalue()
         log.debug("Sending " + str(data) + " to " + str(self.host) + ":" + self.port)
+        print()
         self._wbuf = BytesIO()
 
         self.session.headers['Content-Length'] = str(len(data))
