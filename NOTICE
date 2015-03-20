@@ -1,10 +1,22 @@
-data/aurora/api.thrift (http://http://aurora.incubator.apache.org/) is
-distributed with this software under the Apache License, Version 2.0
-(see the LICENSE-ASL-2.0 file). In accordance with that license, that
+data/aurora/api.thrift and the contents of the gen/ directory
+(http://aurora.incubator.apache.org/) is distributed with this
+software under the Apache License, Version 2.0 (see the
+LICENSE-ASL-2.0 file). In accordance with that license, that
 software comes with the following notices:
 
     Apache Aurora
     Copyright 2014-2015 The Apache Software Foundation
+
+    This product includes software developed at
+    The Apache Software Foundation (http://www.apache.org/).
+
+thrift-1.0.0-py3.tar.gz (http://thrift.apache.org/) is distributed
+with this software under the Apache License, Version 2.0 (see the
+LICENSE-ASL-2.0 file). In accordance with that license, that
+software comes with the following notices:
+
+    Apache Thrift
+    Copyright 2006-2010 The Apache Software Foundation.
 
     This product includes software developed at
     The Apache Software Foundation (http://www.apache.org/).

@@ -1,5 +1,5 @@
 from setuptools import setup, find_packages
-
+import os
 
 def readme():
     with open('README.md') as f:
@@ -26,10 +26,11 @@ setup(name='herc',
           'mock',
           'arrow',
           'nose',
-          'thriftpy',
-          'requests'
+          'requests',
+          'thrift==1.0.0-py3'
       ],
       entry_points={'console_scripts': ['herc = herc.webservice:main']},
+      dependency_links = ['file://' + os.getcwd() + '/thrift-1.0.0-py3.tar.gz'],
       zip_safe=False,
       test_suite='nose.collector',
       tests_require=['nose']
