@@ -184,8 +184,7 @@ def main():
         console_handler.setFormatter(log_formatter)
         console_handler.setLevel(logging.DEBUG)
         root_logger.addHandler(console_handler)
-
-    if config.get('debug'):
+        
         print('Started Herc in DEBUG mode (port {0})'.format(config.get('port')))
         from tornado.log import enable_pretty_logging
         enable_pretty_logging()
