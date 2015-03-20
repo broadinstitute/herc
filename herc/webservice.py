@@ -135,43 +135,62 @@ endpoint_mapping = {
 def main():
     parser = argparse.ArgumentParser(description='Herc', epilog='The Broad Institute')
     parser.add_argument(
-        '-D', '--debug', required=False, default=False, action='store_true', help='Run server in foreground'
-    )
-    parser.add_argument(
-        '-s', '--ssl', required=False, default=False, action='store_true', help='Run with SSL.  Will auto-generate keys (herc.key, herc.cert) if they don\'t exist already'
-    )
-    parser.add_argument(
-        '-p', '--port', default=4372, help='Server TCP port'
-    )
-    parser.add_argument(
-        '-l', '--log', default='herc.log', help='Location of log file'
-    )
-    parser.add_argument(
         '-c', '--config', default='/etc/herc.conf,herc.conf', help='Comma separated list of config file locations'
+    )
+    parser.add_argument(
+        '-D', '--debug', action='store_true', help='Run server in foreground'
+    )
+    parser.add_argument(
+        '-s', '--ssl', action='store_true', help='Run with SSL.  Will auto-generate keys (herc.key, herc.cert) if they don\'t exist already'
+    )
+    parser.add_argument(
+        '-p', '--port', type=int, help='Server TCP port'
+    )
+    parser.add_argument(
+        '-l', '--log-file', help='Location of log file'
+    )
+    parser.add_argument(
+        '--aurora.cluster.name', help='Aurora cluster name'
+    )
+    parser.add_argument(
+        '--aurora.cluster.role', help='Aurora cluster role'
+    )
+    parser.add_argument(
+        '--aurora.cluster.env', help='Aurora cluster env'
     )
     cli = parser.parse_args()
 
+    # Force a config load so we exit early if we fail to load one.
+    config.load_config(cli.config.split(','))
+
+    # Override with CLI options
+    for key, value in cli.__dict__.items():
+        if key == 'config' or value is None: continue
+        config.put(key, value)
+
     log_formatter = logging.Formatter("%(asctime)s [%(threadName)s] [%(levelname)s]  %(message)s")
     root_logger = logging.getLogger()
-    file_logger = logging.FileHandler(cli.log)
-    file_logger.setFormatter(log_formatter)
-    file_logger.setLevel(logging.DEBUG)
-    root_logger.addHandler(file_logger)
-    console_handler = logging.StreamHandler()
-    console_handler.setFormatter(log_formatter)
-    console_handler.setLevel(logging.DEBUG)
-    root_logger.addHandler(console_handler)
 
-    if cli.debug:
-        print('Started Herc in DEBUG mode (port {0})'.format(cli.port))
+    try:
+        file_logger = logging.FileHandler(config.get('log_file'))
+        file_logger.setFormatter(log_formatter)
+        file_logger.setLevel(logging.DEBUG)
+        root_logger.addHandler(file_logger)
+    except PermissionError:
+        print('WARNING: coult not open log file for writing: ' + config.get('log_file'))
+
+    if config.get('debug'):
+        console_handler = logging.StreamHandler()
+        console_handler.setFormatter(log_formatter)
+        console_handler.setLevel(logging.DEBUG)
+        root_logger.addHandler(console_handler)
+        
+        print('Started Herc in DEBUG mode (port {0})'.format(config.get('port')))
         from tornado.log import enable_pretty_logging
         enable_pretty_logging()
 
-    #Force a config load so we exit early if we fail to load one.
-    config.load_config(cli.config.split(','))
-
     # Generate a self-signed certificate and key if we don't already have one.
-    if cli.ssl:
+    if config.get('ssl'):
         if not os.path.isfile("herc.crt") or not os.path.isfile("herc.key"):
             subprocess.call('openssl req -x509 -newkey rsa:2048 -keyout herc.key -out herc.crt -days 36500 -nodes -subj'.split() + ["/C=US/ST=MA/L=Cambridge/O=Broad Institute/OU=Prometheus"])
         ssl_options = {"certfile": "herc.crt", "keyfile": "herc.key"}
@@ -179,11 +198,11 @@ def main():
         ssl_options = None
 
 
-    app = Application(list(endpoint_mapping.items()), compress_response=True, debug=cli.debug)
+    app = Application(list(endpoint_mapping.items()), compress_response=True, debug=config.get('debug'))
     ili = IOLoop.instance()
 
     http_server = httpserver.HTTPServer(app, ssl_options, io_loop=ili)
-    http_server.listen(cli.port)
+    http_server.listen(config.get('port'))
 
     # Trigger a callback that does nothing every half-second so KeyboardInterrupts can actually get through
     PeriodicCallback(lambda: None, 500, ili).start()
