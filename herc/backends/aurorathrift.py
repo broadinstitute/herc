@@ -93,7 +93,7 @@ class AuroraThrift(object):
 
         # list of processes: download inputs, run the commandline, upload outputs
         task['processes'] = downloads \
-                             + AuroraThrift._build_process(name = jobid + '_ps', cmd = jobrq['commandline'], final = False) \
+                             + [AuroraThrift._build_process(name = jobid + '_ps', cmd = jobrq['commandline'], final = False)] \
                              + uploads
 
         #order constraints of all processes so far - i.e. the non-final ones
@@ -157,5 +157,5 @@ class AuroraThrift(object):
             taskConfig=task,
             instanceCount=1)
 
-        resp = self.client.createJob(jobconf)
+        resp = self.client.createJob(jobconf, None, None)
         log.debug(resp)
