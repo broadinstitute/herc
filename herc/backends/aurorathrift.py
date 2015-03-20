@@ -142,7 +142,7 @@ class AuroraThrift(object):
         task.owner = owner
         task.requestedPorts = frozenset()
         task.taskLinks = {}
-        task.constraints.add( Constraint(name=u'host', constraint=TaskConstraint(limit=LimitConstraint(limit=99999999), value=None)) )
+        task.constraints = set([ Constraint(name=u'host', constraint=TaskConstraint(limit=LimitConstraint(limit=99999999), value=None)) ])
         task.container = Container(docker=DockerContainer(image=jobrq['docker']), mesos=None)
 
         task.executorConfig = ExecutorConfig(
