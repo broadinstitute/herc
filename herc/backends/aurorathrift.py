@@ -21,13 +21,12 @@ sizes = {
 
 class AuroraThrift(object):
     """Talk to the Aurora scheduler using its Thrift API."""
-    localize_cmd = config.get("auroracli.localizecmd")
-
     def __init__(self):
         self.transport = THttpClient(config.get("aurorathrift.server"))
         self.protocol = TJSONProtocol(self.transport)
         self.transport.open()
         self.client = AuroraSchedulerManager.Client(self.protocol)
+        self.localize_cmd = config.get("auroracli.localizecmd")
 
     @staticmethod
     def _build_process(name, cmd, final):
@@ -43,7 +42,7 @@ class AuroraThrift(object):
         }
 
     @staticmethod
-    def _build_executor_config(jobid, jobrq):
+    def _build_executor_config(jobid, jobrq, localize_cmd):
         """Builds a Python object representing the Task's ExecutorConfig."""
         exconf = {
             "environment" : config.get("aurora.cluster.env"),
@@ -81,14 +80,14 @@ class AuroraThrift(object):
         # processes to localize down from the "inputs" part of the schema
         downloads = [ AuroraThrift._build_process(
                             name = "locdown_" + str(idx),
-                            cmd = AuroraThrift.localize_cmd + ' "' + path['cloud'] + '" "' + path['local'] + '"',
+                            cmd = localize_cmd + ' "' + path['cloud'] + '" "' + path['local'] + '"',
                             final = False)
                      for (idx, path) in enumerate(jobrq['inputs']) ]
 
         # processes to localize back up to the cloud from the "outputs" part of the schema
         uploads = [ AuroraThrift._build_process(
                         name = "locup_" + str(idx),
-                        cmd = AuroraThrift.localize_cmd + ' "' + path['local'] + '" "' + path['cloud'] + '"',
+                        cmd = localize_cmd + ' "' + path['local'] + '" "' + path['cloud'] + '"',
                         final = False)
                    for (idx, path) in enumerate(jobrq['outputs'])]
 
@@ -105,12 +104,12 @@ class AuroraThrift(object):
         if jobrq['stdout'] != "":
             task['processes'].append(AuroraThrift._build_process(
                 name = "__locup_stdout",
-                cmd = AuroraThrift.localize_cmd + ' ' + config.get("aurora.sandboxdir") + '"/.logs/' + jobid + '_ps/0/stdout" "' + jobrq['stdout'] + '"',
+                cmd = localize_cmd + ' ' + config.get("aurora.sandboxdir") + '"/.logs/' + jobid + '_ps/0/stdout" "' + jobrq['stdout'] + '"',
                 final = True))
         if jobrq['stderr'] != "":
             task['processes'].append(AuroraThrift._build_process(
                 name = "__locup_stderr",
-                cmd = AuroraThrift.localize_cmd + ' ' + config.get("aurora.sandboxdir") + '"/.logs/' + jobid + '_ps/0/stderr" "' + jobrq['stderr'] + '"',
+                cmd = localize_cmd + ' ' + config.get("aurora.sandboxdir") + '"/.logs/' + jobid + '_ps/0/stderr" "' + jobrq['stderr'] + '"',
                 final = True))
 
         exconf['task'] = task
@@ -148,7 +147,7 @@ class AuroraThrift(object):
 
         task.executorConfig = ExecutorConfig(
             name=AURORA_EXECUTOR_NAME,
-            data=json.dumps(self._build_executor_config(jobid, jobrq)))
+            data=json.dumps(self._build_executor_config(jobid, jobrq, self.localize_cmd)))
 
         jobconf = JobConfiguration(
             key=key,
