@@ -1,5 +1,5 @@
 data/aurora/api.thrift and the contents of the gen/ directory
-(http://aurora.incubator.apache.org/) is distributed with this
+(http://aurora.incubator.apache.org/) are distributed with this
 software under the Apache License, Version 2.0 (see the
 LICENSE-ASL-2.0 file). In accordance with that license, that
 software comes with the following notices:
