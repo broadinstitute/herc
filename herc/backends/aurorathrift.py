@@ -73,7 +73,7 @@ class AuroraThrift(object):
             "resources": {
                  "disk": jobrq['resources']['disk'] * sizes[jobrq['resources']['diskunit']],
                  "ram" : jobrq['resources']['mem'] * sizes[jobrq['resources']['memunit']],
-                 "cpu": jobrq['resources']['cpu']
+                 "cpu": jobrq['resources']['cpus']
              }
         }
 
