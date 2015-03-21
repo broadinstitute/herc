@@ -71,30 +71,30 @@ class AuroraThrift(object):
             "max_failures": 1,
             "max_concurrency": 0,
             "resources": {
-                 "disk": jobrq['resources']['disk'] * sizes[jobrq['resources']['diskunit']],
-                 "ram" : jobrq['resources']['mem'] * sizes[jobrq['resources']['memunit']],
-                 "cpu": jobrq['resources']['cpus']
-             }
+                "disk": int(jobrq['resources']['disk'] * sizes[jobrq['resources']['diskunit']]),
+                "ram" : int(jobrq['resources']['mem'] * sizes[jobrq['resources']['memunit']]),
+                "cpu": float(jobrq['resources']['cpus'])
+            }
         }
 
         # processes to localize down from the "inputs" part of the schema
         downloads = [ AuroraThrift._build_process(
-                            name = "locdown_" + str(idx),
-                            cmd = localize_cmd + ' "' + path['cloud'] + '" "' + path['local'] + '"',
-                            final = False)
-                     for (idx, path) in enumerate(jobrq['inputs']) ]
+            name = "locdown_" + str(idx),
+            cmd = localize_cmd + ' "' + path['cloud'] + '" "' + path['local'] + '"',
+            final = False)
+                      for (idx, path) in enumerate(jobrq['inputs']) ]
 
         # processes to localize back up to the cloud from the "outputs" part of the schema
         uploads = [ AuroraThrift._build_process(
-                        name = "locup_" + str(idx),
-                        cmd = localize_cmd + ' "' + path['local'] + '" "' + path['cloud'] + '"',
-                        final = False)
-                   for (idx, path) in enumerate(jobrq['outputs'])]
+            name = "locup_" + str(idx),
+            cmd = localize_cmd + ' "' + path['local'] + '" "' + path['cloud'] + '"',
+            final = False)
+                    for (idx, path) in enumerate(jobrq['outputs'])]
 
         # list of processes: download inputs, run the commandline, upload outputs
         task['processes'] = downloads \
-                             + [AuroraThrift._build_process(name = jobid + '_ps', cmd = jobrq['commandline'], final = False)] \
-                             + uploads
+                            + [AuroraThrift._build_process(name = jobid + '_ps', cmd = jobrq['commandline'], final = False)] \
+                            + uploads
 
         #order constraints of all processes so far - i.e. the non-final ones
         task['constraints'] = [ { "order" : [ p['name'] for p in task['processes'] ] } ]
@@ -134,9 +134,9 @@ class AuroraThrift(object):
         task.contactEmail = None
         task.metadata = None  # see api.thrift Metadata; will be displayed in the Aurora UI if set
 
-        task.numCpus = jobrq['resources']['cpus']
-        task.ramMb = jobrq['resources']['mem'] * sizes[jobrq['resources']['memunit']] / sizes['MB']
-        task.diskMb = jobrq['resources']['disk'] * sizes[jobrq['resources']['diskunit']] / sizes['MB']
+        task.numCpus = float(jobrq['resources']['cpus'])
+        task.ramMb = int(jobrq['resources']['mem'] * sizes[jobrq['resources']['memunit']] / sizes['MB'])
+        task.diskMb = int(jobrq['resources']['disk'] * sizes[jobrq['resources']['diskunit']] / sizes['MB'])
 
         task.job = key
         task.owner = owner
@@ -157,5 +157,5 @@ class AuroraThrift(object):
             taskConfig=task,
             instanceCount=1)
 
-        resp = self.client.createJob(jobconf, None, None)
+        resp = self.client.createJob(jobconf, None, SessionKey(mechanism="UNAUTHENTICATED", data="UNAUTHENTICATED"))
         log.debug(resp)
