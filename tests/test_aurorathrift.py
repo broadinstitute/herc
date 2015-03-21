@@ -21,3 +21,12 @@ class TestAuroraThrift(TestCase):
                 config.side_effect = lambda val : fake_config[val]
                 exconf = AuroraThrift._build_executor_config("TESTJOB", fullrq, "localizer")
                 self.assertEqual( exconf, thrift_dicts.exconf )
+
+    def test_build_job_config(self):
+        with open('tests/data/full_submit.json', 'r', encoding="utf-8") as fullsub:
+            fullrq = json.load(fullsub)
+
+            with mock.patch('herc.config.get') as config:
+                config.side_effect = lambda val : fake_config[val]
+                jobconf = AuroraThrift._build_job_config("TESTJOB", fullrq, "test", "localizer")
+                self.assertEqual( jobconf, thrift_dicts.jobconf )

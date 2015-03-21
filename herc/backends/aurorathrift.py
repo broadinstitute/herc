@@ -115,8 +115,9 @@ class AuroraThrift(object):
         exconf['task'] = task
         return exconf
 
-    def requestjob(self, jobid, jobrq):
-        owner = Identity(role=config.get("aurora.cluster.role"), user=getpass.getuser())
+    @staticmethod
+    def _build_job_config(jobid, jobrq, user, localize_cmd):
+        owner = Identity(role=config.get("aurora.cluster.role"), user=user)
         key = JobKey(
             role=config.get("aurora.cluster.role"),
             environment=config.get("aurora.cluster.env"),
@@ -147,9 +148,9 @@ class AuroraThrift(object):
 
         task.executorConfig = ExecutorConfig(
             name=AURORA_EXECUTOR_NAME,
-            data=json.dumps(self._build_executor_config(jobid, jobrq, self.localize_cmd)))
+            data=json.dumps(AuroraThrift._build_executor_config(jobid, jobrq, localize_cmd)))
 
-        jobconf = JobConfiguration(
+        return JobConfiguration(
             key=key,
             owner=owner,
             cronSchedule=None,
@@ -157,5 +158,7 @@ class AuroraThrift(object):
             taskConfig=task,
             instanceCount=1)
 
+    def requestjob(self, jobid, jobrq):
+        jobconf = AuroraThrift._build_job_config(jobid, jobrq, getpass.getuser(), self.localize_cmd)
         resp = self.client.createJob(jobconf, None, SessionKey(mechanism="UNAUTHENTICATED", data="UNAUTHENTICATED"))
         log.debug(resp)

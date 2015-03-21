@@ -1,3 +1,7 @@
+from gen.apache.aurora.api.ttypes import *
+from gen.apache.aurora.api.constants import AURORA_EXECUTOR_NAME
+import json
+
 exconf = {
     "environment" : "devel",
     "container" : { 'docker' : { 'image' : "python:2.7" } },
@@ -69,3 +73,38 @@ exconf = {
         "constraints" : [ { "order" : [ "locdown_0", "locdown_1", "TESTJOB_ps", "locup_0" ] } ]
     }
 }
+
+_key=JobKey(role="test",
+                environment="devel",
+                name="TESTJOB")
+_owner=Identity(role="test", user="test")
+
+jobconf = JobConfiguration(
+            key=_key,
+            owner=_owner,
+            cronSchedule=None,
+            cronCollisionPolicy=CronCollisionPolicy.KILL_EXISTING,
+            taskConfig=TaskConfig(
+                jobName="TESTJOB",
+                environment="devel",
+                production=False,
+                isService=False,
+                maxTaskFailures=1,
+                priority=0,
+                contactEmail=None,
+                metadata=None,
+                numCpus=1.0,
+                ramMb=16,
+                diskMb=1,
+                job=_key,
+                owner=_owner,
+                requestedPorts=frozenset(),
+                taskLinks={},
+                constraints=set([ Constraint(name=u'host', constraint=TaskConstraint(limit=LimitConstraint(limit=99999999), value=None)) ]),
+                container=Container(docker=DockerContainer(image='python:2.7'), mesos=None),
+                executorConfig=ExecutorConfig(
+                    name=AURORA_EXECUTOR_NAME,
+                    data=json.dumps(exconf)
+                )
+            ),
+            instanceCount=1)
