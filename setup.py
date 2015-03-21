@@ -1,5 +1,7 @@
 from setuptools import setup, find_packages
 import os
+import os.path
+import urllib.parse
 
 def readme():
     with open('README.md') as f:
@@ -30,7 +32,7 @@ setup(name='herc',
           'thrift==1.0.0-py3'
       ],
       entry_points={'console_scripts': ['herc = herc.webservice:main']},
-      dependency_links = ['file://' + os.getcwd() + '/thrift-1.0.0-py3.tar.gz'],
+      dependency_links = [urllib.parse.urljoin('file:', os.path.join(os.getcwd(), 'thrift-1.0.0-py3.tar.gz'))],
       zip_safe=False,
       test_suite='nose.collector',
       tests_require=['nose']
