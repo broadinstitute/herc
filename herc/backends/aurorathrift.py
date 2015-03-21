@@ -104,12 +104,12 @@ class AuroraThrift(object):
         if jobrq['stdout'] != "":
             task['processes'].append(AuroraThrift._build_process(
                 name = "__locup_stdout",
-                cmd = localize_cmd + ' ' + config.get("aurora.sandboxdir") + '"/.logs/' + jobid + '_ps/0/stdout" "' + jobrq['stdout'] + '"',
+                cmd = localize_cmd + ' "' + config.get("aurora.sandboxdir") + '/.logs/' + jobid + '_ps/0/stdout" "' + jobrq['stdout'] + '"',
                 final = True))
         if jobrq['stderr'] != "":
             task['processes'].append(AuroraThrift._build_process(
                 name = "__locup_stderr",
-                cmd = localize_cmd + ' ' + config.get("aurora.sandboxdir") + '"/.logs/' + jobid + '_ps/0/stderr" "' + jobrq['stderr'] + '"',
+                cmd = localize_cmd + ' "' + config.get("aurora.sandboxdir") + '/.logs/' + jobid + '_ps/0/stderr" "' + jobrq['stderr'] + '"',
                 final = True))
 
         exconf['task'] = task
