@@ -168,3 +168,12 @@ class AuroraThrift(object):
         jobconf = AuroraThrift._build_job_config(jobid, jobrq, getpass.getuser(), self.localize_cmd)
         resp = self.client.createJob(jobconf, None, SessionKey(mechanism="UNAUTHENTICATED", data="UNAUTHENTICATED"))
         log.debug(resp)
+
+    def status(self, jobid):
+        resp = self.client.getTasksWithoutConfigs(
+                TaskQuery(
+                    jobKeys=[JobKey(role=config.get("aurora.cluster.role"),
+                                    environment=config.get("aurora.cluster.env"),
+                                    name=jobid)] ))
+        #TODO: Turn the response into a Python object, and make this the interface.
+        #(= update AuroraCLI and the scheduler also.)
