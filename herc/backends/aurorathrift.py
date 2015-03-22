@@ -1,5 +1,5 @@
 import getpass
-import json
+import munch
 from thrift.transport.THttpClient import THttpClient
 from thrift.protocol.TJSONProtocol import TJSONProtocol
 from gen.apache.aurora.api import AuroraSchedulerManager
@@ -117,38 +117,44 @@ class AuroraThrift(object):
 
     @staticmethod
     def _build_job_config(jobid, jobrq, user, localize_cmd):
-        owner = Identity(role=config.get("aurora.cluster.role"), user=user)
+        """Builds the JobConfiguration Thrift object."""
+
+        #The executorConfig is a JSON blob passed to the Task and on through to Thermos.
+        #It contains most of the data that also goes into the JobConfiguration, so we'll
+        #copy out the majority of the values from there to here in an attempt to keep
+        #them in sync.
+        exconf = munch.munchify(AuroraThrift._build_executor_config(jobid, jobrq, localize_cmd))
+
+        owner = Identity(role=exconf.role, user=user)
         key = JobKey(
-            role=config.get("aurora.cluster.role"),
-            environment=config.get("aurora.cluster.env"),
-            name=jobid)
+            role=exconf.role,
+            environment=exconf.environment,
+            name=exconf.name)
 
         task = TaskConfig()
-
-        # TODO: Need a better way of keeping these in sync with _build_executor_config
-        task.jobName = jobid
-        task.environment = config.get("aurora.cluster.env")
-        task.production = False  # For now. If we ever have real production jobs with quota, we can set this.
-        task.isService = False
-        task.maxTaskFailures = 1
-        task.priority = 0
+        task.jobName = exconf.name
+        task.environment = exconf.environment
+        task.production = exconf.production
+        task.isService = exconf.service
+        task.maxTaskFailures = exconf.max_task_failures
+        task.priority = exconf.priority
         task.contactEmail = None
         task.metadata = None  # see api.thrift Metadata; will be displayed in the Aurora UI if set
 
-        task.numCpus = float(jobrq['resources']['cpus'])
-        task.ramMb = int(jobrq['resources']['mem'] * sizes[jobrq['resources']['memunit']] / sizes['MB'])
-        task.diskMb = int(jobrq['resources']['disk'] * sizes[jobrq['resources']['diskunit']] / sizes['MB'])
+        task.numCpus = exconf.task.resources.cpu
+        task.ramMb = int(exconf.task.resources.ram / sizes['MB'])
+        task.diskMb = int(exconf.task.resources.disk / sizes['MB'])
 
         task.job = key
         task.owner = owner
         task.requestedPorts = frozenset()
         task.taskLinks = {}
-        task.constraints = set([ Constraint(name=u'host', constraint=TaskConstraint(limit=LimitConstraint(limit=99999999), value=None)) ])
-        task.container = Container(docker=DockerContainer(image=jobrq['docker']), mesos=None)
+        task.constraints = { Constraint(name='host', constraint=TaskConstraint(limit=LimitConstraint(limit=99999999), value=None)) }
+        task.container = Container(docker=DockerContainer(image=exconf.container.docker.image), mesos=None)
 
         task.executorConfig = ExecutorConfig(
             name=AURORA_EXECUTOR_NAME,
-            data=json.dumps(AuroraThrift._build_executor_config(jobid, jobrq, localize_cmd)))
+            data=exconf.toJSON())
 
         return JobConfiguration(
             key=key,

@@ -14,6 +14,7 @@ fake_config = {
 class TestAuroraThrift(TestCase):
     maxDiff = None
     def test_build_executor_config(self):
+        """Test that the executor config JSON data is built correctly."""
         with open('tests/data/full_submit.json', 'r', encoding="utf-8") as fullsub:
             fullrq = json.load(fullsub)
 
@@ -23,6 +24,7 @@ class TestAuroraThrift(TestCase):
                 self.assertEqual( exconf, thrift_dicts.exconf )
 
     def test_build_job_config(self):
+        """Test that the JobConfig Thrift object is built correctly."""
         with open('tests/data/full_submit.json', 'r', encoding="utf-8") as fullsub:
             fullrq = json.load(fullsub)
 

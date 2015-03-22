@@ -1,6 +1,6 @@
 from gen.apache.aurora.api.ttypes import *
 from gen.apache.aurora.api.constants import AURORA_EXECUTOR_NAME
-import json
+import munch
 
 exconf = {
     "environment" : "devel",
@@ -104,7 +104,7 @@ jobconf = JobConfiguration(
                 container=Container(docker=DockerContainer(image='python:2.7'), mesos=None),
                 executorConfig=ExecutorConfig(
                     name=AURORA_EXECUTOR_NAME,
-                    data=json.dumps(exconf)
+                    data=munch.munchify(exconf).toJSON()
                 )
             ),
             instanceCount=1)
