@@ -43,7 +43,7 @@ def validate(jsonstr, schemapath):
         raise HTTPError(400, "Not a valid JSON object.")
     except ValueError:
         raise HTTPError(400, "Not a valid JSON object.")
-    except jsonschema.ValidationError:
-        raise HTTPError(400, "Not a valid Aurora job submission request. Job submissions should conform to the JSON schema available at the /schema endpoint.")
+    except jsonschema.ValidationError as e:
+        raise HTTPError(400, "Not a valid Aurora job submission. See schema at /schema endpoint. " + e.message)
     except jsonschema.SchemaError:
         raise HTTPError(500, "Something appears to be wrong with the Aurora job schema! This is definitely a bug.")
