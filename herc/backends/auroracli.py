@@ -6,6 +6,7 @@ import os
 import time
 import logging
 import arrow
+import munch
 from .. import config
 from .aurorabackend import BackendInitException
 
@@ -142,4 +143,7 @@ class AuroraCLI(object):
     def status(self, jobid):
         # Boils down to: aurora job status cluster/role/env/jobid --write-json
         (rc, stdout, stderr) = run(self.status_cmd + ['/'.join([self.cluster, self.role, self.env, jobid]), "--write-json"])
-        return stdout
+        jobresult = json.loads(stdout)
+        # scheduler expects a munchified object 
+        munchifiedresult = munchifiedresult = munch.munchify(jobresult)
+        return munchifiedresult

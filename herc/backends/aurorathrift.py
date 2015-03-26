@@ -3,7 +3,7 @@ import munch
 from thrift.transport.THttpClient import THttpClient
 from thrift.protocol.TJSONProtocol import TJSONProtocol
 from gen.apache.aurora.api import AuroraSchedulerManager
-from gen.apache.aurora.api.constants import AURORA_EXECUTOR_NAME
+from gen.apache.aurora.api.constants import AURORA_EXECUTOR_NAME, ACTIVE_STATES
 from gen.apache.aurora.api.ttypes import *
 from .. import config
 
@@ -170,10 +170,51 @@ class AuroraThrift(object):
         log.debug(resp)
 
     def status(self, jobid):
-        resp = self.client.getTasksWithoutConfigs(
-                TaskQuery(
-                    jobKeys=[JobKey(role=config.get("aurora.cluster.role"),
+        jobkey = JobKey(role=config.get("aurora.cluster.role"),
                                     environment=config.get("aurora.cluster.env"),
-                                    name=jobid)] ))
-        #TODO: Turn the response into a Python object, and make this the interface.
-        #(= update AuroraCLI and the scheduler also.)
+                                    name=jobid)
+        response = self.client.getTasksWithoutConfigs(TaskQuery(jobKeys=[jobkey]))
+        job_tasks = response.result.scheduleStatusResult.tasks
+        #import pprint
+        #pprint.pprint(vars(job_tasks))
+        #pprint.pprint(vars(resp.result.scheduleStatusResult.tasks[0].assignedTask.task))
+        #jobresult = resp.result
+        jobresult = self.get_status_for_job(jobkey, job_tasks)
+        return jobresult
+
+    def get_status_for_job(self, jobkey, job_tasks):
+        """Make and return a job status object from a raw thrift response."""
+        def is_active(task):
+            return task.status in ACTIVE_STATES
+
+        active_tasks = sorted([t for t in job_tasks if is_active(t)],
+                            key=lambda task: task.assignedTask.instanceId)
+        inactive_tasks = sorted([t for t in job_tasks if not is_active(t)],
+                              key=lambda task: task.assignedTask.instanceId)
+        result = [self.get_job_status_object(jobkey, active_tasks, inactive_tasks)]
+        return result
+
+    def get_job_status_object(self, jobkey, active_tasks, inactive_tasks):
+        """Return an object containing info on the tasks running for a job."""
+        def get_task_status_object(scheduled_task):
+          """Return a single task object""" 
+          task = scheduled_task
+          # Now, clean it up: take all fields that are actually enums, and convert
+          # their values to strings.
+          task.status = ScheduleStatus._VALUES_TO_NAMES[task.status]
+          events = sorted(task.taskEvents, key=lambda event: event.timestamp)
+          for event in events:
+            event.status = ScheduleStatus._VALUES_TO_NAMES[event.status]
+          # convert boolean fields to boolean value names.
+          assigned = task.assignedTask
+          task_config = assigned.task
+          task_config.isService = (task_config.isService != 0)
+          #import pprint
+          #pprint.pprint(vars(assigned))
+          #if task_config.production:
+          #  task_config.production = (task_config.production != 0)
+          return task
+
+        return {"job": str(jobkey),
+            "active": [get_task_status_object(task) for task in active_tasks],
+            "inactive": [get_task_status_object(task) for task in inactive_tasks]}

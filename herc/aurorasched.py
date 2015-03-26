@@ -76,8 +76,8 @@ def determine_true_status(jobstatus):
     For instance, a job that gets LOST will typically get rescheduled.
     This function takes a job status object and avoids returning a terminal status if it'll be rescheduled.
     It returns a tuple of ("STATUS", { additional_dict }), the latter being extra fields to dump in the output."""
-    status = jobstatus['status']
-    statuslist = [evt['status'] for evt in jobstatus['taskEvents']]
+    status = jobstatus.status
+    statuslist = [evt.status for evt in jobstatus.taskEvents]
     if status not in TERMINAL_STATES:
         # Job is still in progress.
         return status, {}
@@ -96,15 +96,15 @@ def determine_true_status(jobstatus):
     elif "FAILED" in statuslist:
         # Might have failed because it went over disk or mem limit. Inspect the message.
         failidx = statuslist.index("FAILED")
-        failevt = jobstatus['taskEvents'][failidx]
-        if failevt['message'].startswith("Memory limit exceeded"):
+        failevt = jobstatus.taskEvents[failidx]
+        if failevt.message.startswith("Memory limit exceeded"):
             # Over memory.
-            matches = re.findall(r"Memory limit exceeded: Requested (\S+), Used (\S+).", failevt['message'])
+            matches = re.findall(r"Memory limit exceeded: Requested (\S+), Used (\S+).", failevt.message)
             assert len(matches) > 0
             return "FAILED", {'reason' : "MEM_EXCEEDED", 'requested': matches[0][0], 'used': matches[0][1]}
-        elif failevt['message'].startswith("Disk limit exceeded"):
+        elif failevt.message.startswith("Disk limit exceeded"):
             # Over disk.
-            matches = re.findall(r"Disk limit exceeded.  Reserved (\S+) bytes vs used (\S+) bytes.", failevt['message'])
+            matches = re.findall(r"Disk limit exceeded.  Reserved (\S+) bytes vs used (\S+) bytes.", failevt.message)
             assert len(matches) > 0
             return "FAILED", {'reason' : "DISK_EXCEEDED", 'requested': matches[0][0] + "BYTES", 'used': matches[0][1] + "BYTES"}
         else:
@@ -123,10 +123,9 @@ def status(jobid):
     output = dict()
     output['jobid'] = jobid
 
-    resjson = get_backend().status(jobid)
+    jobresult = get_backend().status(jobid)
 
-    jobresult = json.loads(resjson)
-    if 'error' in jobresult:
+    if hasattr(jobresult, 'error'):
         # {"jobspec":"herc/jclouds/devel/nonexistent_job","error":"No matching jobs found"}
         raise HTTPError(404, "Job ID " + jobid + " not found")
     else:
@@ -135,12 +134,12 @@ def status(jobid):
 
         # Sort inactive jobs in order of most recent submission time.
         # This catches the issue where a job gets rescheduled but the first run doesn't progress to a terminal state until after the second completes.
-        jobruns = jobresult['active'] + sorted(jobresult['inactive'], key=lambda elem: elem['taskEvents'][0]['timestamp'], reverse=True)
+        jobruns = jobresult['active'] + sorted(jobresult['inactive'], key=lambda elem: elem.taskEvents[0].timestamp, reverse=True)
 
         laststatus = jobruns[0]
 
         output['status'], extradict = determine_true_status(laststatus)
-        output['time'] = laststatus['taskEvents'][-1]['timestamp']
+        output['time'] = laststatus.taskEvents[-1].timestamp
         output.update(extradict)
 
     return output
