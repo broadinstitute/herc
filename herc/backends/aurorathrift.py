@@ -175,10 +175,6 @@ class AuroraThrift(object):
                                     name=jobid)
         response = self.client.getTasksWithoutConfigs(TaskQuery(jobKeys=[jobkey]))
         job_tasks = response.result.scheduleStatusResult.tasks
-        #import pprint
-        #pprint.pprint(vars(job_tasks))
-        #pprint.pprint(vars(resp.result.scheduleStatusResult.tasks[0].assignedTask.task))
-        #jobresult = resp.result
         jobresult = self.get_status_for_job(jobkey, job_tasks)
         return jobresult
 
@@ -209,10 +205,6 @@ class AuroraThrift(object):
           assigned = task.assignedTask
           task_config = assigned.task
           task_config.isService = (task_config.isService != 0)
-          #import pprint
-          #pprint.pprint(vars(assigned))
-          #if task_config.production:
-          #  task_config.production = (task_config.production != 0)
           return task
 
         return {"job": str(jobkey),
