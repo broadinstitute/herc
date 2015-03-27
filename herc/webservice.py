@@ -5,7 +5,7 @@ from tornado import httpserver
 from collections import OrderedDict
 import inspect
 import argparse
-import os.path
+import os
 import subprocess
 import json
 import time
@@ -22,6 +22,9 @@ class base(RequestHandler):
         self.set_header('Content-Type', 'application/json')
         self.set_header('Access-Control-Allow-Origin',	   '*')
         self.set_header('Access-Control-Allow-Credentials', 'true')
+        module_dir = os.path.dirname(__file__)
+        self.submit_schema = os.path.join(module_dir, os.pardir, 'data', 'schemas', 'jobsubmit.json')
+        print(self.submit_schema)
 
     def write_error(self, status_code, **kwargs):
         if self.settings.get("serve_traceback") and "exc_info" in kwargs:
@@ -77,7 +80,7 @@ class schema(base):
     def get(self):
         """GET /schema
         Returns the JSON schema used to validate job submission requests."""
-        with open("data/schemas/jobsubmit.json", 'r', encoding="utf-8") as jschema:
+        with open(self.submit_schema, 'r', encoding="utf-8") as jschema:
             self.write(jschema.read())
             self.finish()
 
@@ -90,7 +93,7 @@ class submit(base):
         Submits a job request. Body must be JSON that validates against the JSON schema available at GET /schema. Returns a JSON object, { "jobid" : "<new_job_id>" }."""
 
         # Validate the request against the schema, filling in defaults. This will raise an HTTPError if it fails validation.
-        jobrq = yield jsonvalidate.validate(self.request.body.decode('utf-8'), "data/schemas/jobsubmit.json")
+        jobrq = yield jsonvalidate.validate(self.request.body.decode('utf-8'), self.submit_schema)
         jobid = yield scheduler.requestjob(jobrq)
 
         self.write(json.dumps({'jobid': jobid}))
