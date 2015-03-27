@@ -14,10 +14,8 @@ setup(name='herc',
       url='http://github.com/broadinstitute/herc',
       author='The Broad Institute',
       packages=find_packages(exclude='tests'),
-      package_data={
-          # Include everything in data/, both schemas and examples.
-          '': ['data/*']
-      },
+      data_files=[('data/aurora', ['data/aurora/api.thrift']),
+                  ('data/schemas', ['data/schemas/jobsubmit.json'])],
       install_requires=[
           'tornado>=4.0',
           'jsonschema',
