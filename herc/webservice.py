@@ -18,13 +18,14 @@ from . import config
 
 class base(RequestHandler):
 
+    def get_data_path(self, rawpathstring):
+        return os.path.join(os.path.dirname(__file__), os.pardir, rawpathstring)
+
     def initialize(self):
         self.set_header('Content-Type', 'application/json')
         self.set_header('Access-Control-Allow-Origin',	   '*')
         self.set_header('Access-Control-Allow-Credentials', 'true')
-        module_dir = os.path.dirname(__file__)
-        self.submit_schema = os.path.join(module_dir, os.pardir, 'data', 'schemas', 'jobsubmit.json')
-        print(self.submit_schema)
+        self.submit_schema = self.get_data_path('data/schemas/jobsubmit.json')
 
     def write_error(self, status_code, **kwargs):
         if self.settings.get("serve_traceback") and "exc_info" in kwargs:
