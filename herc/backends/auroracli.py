@@ -145,5 +145,5 @@ class AuroraCLI(object):
         (rc, stdout, stderr) = run(self.status_cmd + ['/'.join([self.cluster, self.role, self.env, jobid]), "--write-json"])
         jobresult = json.loads(stdout)
         # scheduler expects a munchified object 
-        munchifiedresult = munchifiedresult = munch.munchify(jobresult)
+        munchifiedresult = munch.munchify(jobresult)
         return munchifiedresult
