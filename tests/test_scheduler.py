@@ -1,6 +1,7 @@
 import herc.aurorasched as scheduler
 from herc.backends import AuroraMock
 import mock
+import munch
 import tornado.testing
 from tornado.testing import gen_test
 
@@ -10,7 +11,7 @@ class TestScheduler(tornado.testing.AsyncTestCase):
         st = dict()
         st['status'] = statuses[-1]
         st['taskEvents'] = [ { 'status' : status, 'timestamp' : idx, 'message' : failmsg if status == "FAILED" else "" } for (idx, status) in enumerate(statuses) ]
-        return st
+        return munch.munchify(st)
 
     def test_nonterm_status(self):
         """Test that we correctly report nonterminal statuses."""

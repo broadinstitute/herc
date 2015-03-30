@@ -8,12 +8,12 @@ EXPOSE 4372
 ENV TERM=xterm-256color
 ENV HERC_SRC=/herc
 ENV HERC_VENV=/herc_venv
+ENV LANG=en_US.UTF-8
 
 # Use baseimage's init system.
 CMD ["/sbin/my_init"]
 
 # Install Herc.
-ADD . $HERC_SRC
 RUN add-apt-repository "deb http://archive.ubuntu.com/ubuntu $(lsb_release -sc) multiverse" && \
 
     # Note that the next command is here to fix Ubuntu's broken Python 3 installation.
@@ -28,6 +28,7 @@ RUN add-apt-repository "deb http://archive.ubuntu.com/ubuntu $(lsb_release -sc) 
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
+ADD . $HERC_SRC
 RUN pyvenv-3.4 $HERC_VENV
 RUN ["/bin/bash", "-c", "/herc/docker/install.sh $HERC_SRC $HERC_VENV"]
 

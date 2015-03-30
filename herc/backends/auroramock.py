@@ -1,4 +1,5 @@
-
+import json
+import munch
 
 class AuroraMock(object):
     """Mock Aurora backend that returns correct-looking data."""
@@ -13,4 +14,7 @@ class AuroraMock(object):
     def status(self, jobid):
         """Returns a good-looking placeholder job status."""
         with open(self.fakestatuspath, 'r', encoding='utf-8') as fakestatus:
-            return fakestatus.read()
+            statusstring = fakestatus.read()
+            statusjson = json.loads(statusstring)
+            munchifiedstatus = munch.munchify(statusjson)
+            return munchifiedstatus

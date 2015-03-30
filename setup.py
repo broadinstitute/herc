@@ -1,5 +1,7 @@
 from setuptools import setup, find_packages
-
+import os
+import os.path
+import urllib.parse
 
 def readme():
     with open('README.md') as f:
@@ -12,10 +14,9 @@ setup(name='herc',
       url='http://github.com/broadinstitute/herc',
       author='The Broad Institute',
       packages=find_packages(exclude='tests'),
-      package_data={
-          # Include everything in data/, both schemas and examples.
-          '': ['data/*']
-      },
+      data_files=[('data/aurora', ['data/aurora/api.thrift']),
+                  ('data/schemas', ['data/schemas/jobsubmit.json']),
+                  ('', ['thrift-1.0.0-py3.tar.gz'])],
       install_requires=[
           'tornado>=4.0',
           'jsonschema',
@@ -25,9 +26,13 @@ setup(name='herc',
           'pyhocon',
           'mock',
           'arrow',
-          'nose'
+          'nose',
+          'requests',
+          'thrift==1.0.0-py3',
+          'munch'
       ],
       entry_points={'console_scripts': ['herc = herc.webservice:main']},
+      dependency_links = [urllib.parse.urljoin('file:', os.path.join(os.getcwd(), 'thrift-1.0.0-py3.tar.gz'))],
       zip_safe=False,
       test_suite='nose.collector',
       tests_require=['nose']
