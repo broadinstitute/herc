@@ -1,3 +1,4 @@
+import json
 import munch
 
 class AuroraMock(object):
