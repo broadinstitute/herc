@@ -15,7 +15,7 @@ setup(name='herc',
       author='The Broad Institute',
       packages=find_packages(exclude='tests'),
       data_files=[('data/aurora', ['data/aurora/api.thrift']),
-                  ('data/schemas', ['data/schemas/jobsubmit.json'])],
+                  ('data/schemas', ['data/schemas/jobsubmit.json']),
                   ('', ['thrift-1.0.0-py3.tar.gz'])],
       install_requires=[
           'tornado>=4.0',
