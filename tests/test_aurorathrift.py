@@ -20,7 +20,7 @@ class TestAuroraThrift(TestCase):
 
             with mock.patch('herc.config.get') as config:
                 config.side_effect = lambda val : fake_config[val]
-                exconf = AuroraThrift._build_executor_config("TESTJOB", fullrq, "localizer")
+                exconf = AuroraThrift._build_executor_config("TESTJOB", fullrq, "localizer", None)
                 self.assertEqual( exconf, thrift_dicts.exconf )
 
     def test_build_job_config(self):
@@ -30,5 +30,5 @@ class TestAuroraThrift(TestCase):
 
             with mock.patch('herc.config.get') as config:
                 config.side_effect = lambda val : fake_config[val]
-                jobconf = AuroraThrift._build_job_config("TESTJOB", fullrq, "test", "localizer")
-                self.assertEqual( jobconf, thrift_dicts.jobconf )
+                jobconf = AuroraThrift._build_job_config("TESTJOB", fullrq, "test", "localizer", None)
+                self.assertEqual(jobconf, thrift_dicts.jobconf)

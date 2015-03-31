@@ -61,20 +61,24 @@ class AuroraCLI(object):
         self.env = config.get("aurora.cluster.env")
 
     @staticmethod
-    def _build_jinja_dict(jobid, jobrq, localize_cmd):
+    def _build_jinja_dict(jobid, jobrq, localize_cmd, vault_api_token):
         """Takes an ID and job request object and converts it into a Python object for passing to Jinja."""
+
+        flags = ''
+        if vault_api_token:
+            flags = "--vault-api-token='{0}'".format(vault_api_token)
 
         # the job request we're going to fill in
         jr = dict()
 
         # processes to localize down from the "inputs" part of the schema
         downloads = [{'name': "locdown_" + str(idx),
-                      'cmd': localize_cmd + ' "' + path['cloud'] + '" "' + path['local'] + '"'}
+                      'cmd': '{0} "{1}" "{2}" {3}'.format(localize_cmd, path['cloud'], path['local'], flags).strip()}
                      for (idx, path) in enumerate(jobrq['inputs'])]
 
         # processes to localize back up to the cloud from the "outputs" part of the schema
         uploads = [{'name': "locup_" + str(idx),
-                    'cmd': localize_cmd + ' "' + path['local'] + '" "' + path['cloud'] + '"'}
+                    'cmd': '{0} "{1}" "{2}" {3}'.format(localize_cmd, path['local'], path['cloud'], flags).strip()}
                    for (idx, path) in enumerate(jobrq['outputs'])]
 
         # list of processes: download inputs, run the commandline, upload outputs
@@ -86,12 +90,12 @@ class AuroraCLI(object):
         if jobrq['stdout'] != "":
             jr['finalizers'].append({
                 'name' : "__locup_stdout",
-                'cmd' : localize_cmd + ' ".logs/' + jobid + '_ps/0/stdout" "' + jobrq['stdout'] + '"'
+                'cmd' : '{0} ".logs/{1}_ps/0/stdout" "{2}" {3}'.format(localize_cmd, jobid, jobrq['stdout'], flags).strip()
             })
         if jobrq['stderr'] != "":
             jr['finalizers'].append({
                 'name' : "__locup_stderr",
-                'cmd' : localize_cmd + ' ".logs/' + jobid + '_ps/0/stderr" "' + jobrq['stderr'] + '"'
+                'cmd' : '{0} ".logs/{1}_ps/0/stderr" "{2}" {3}'.format(localize_cmd, jobid, jobrq['stderr'], flags).strip()
             })
 
         # Currently all we need is one task, made of the list of download + run + upload processes.
@@ -121,8 +125,8 @@ class AuroraCLI(object):
 
         return jr
 
-    def requestjob(self, jobid, jobrq):
-        jr = self._build_jinja_dict(jobid, jobrq, self.localize_cmd)
+    def requestjob(self, jobid, jobrq, vault_api_token):
+        jr = self._build_jinja_dict(jobid, jobrq, self.localize_cmd, vault_api_token)
 
         template = self.template_env.get_template('jobtemplate.aurora')
         tmpfile = tempfile.NamedTemporaryFile(suffix=".aurora")

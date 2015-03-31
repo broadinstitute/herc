@@ -99,7 +99,7 @@ Below is an example payload:
             "local" : "/foo"
         },
         {
-            "cloud" : "boss://bar",
+            "cloud" : "http://bar",
             "local" : "/bar"
         }
     ],
@@ -124,7 +124,7 @@ Below is an example payload:
 ```
 
 ##### `inputs`
-A list of input files to localize. (If you don't have any, just pass an empty list.) You can have as many of these as you like. The values for `cloud` must be either `gs://` or `boss://` file paths. The values for `local` must be local file paths.
+A list of input files to localize. (If you don't have any, just pass an empty list.) You can have as many of these as you like. The values for `cloud` must be either `gs://` or `http://` file paths. The values for `local` must be local file paths.
 
 #####`commandline`
 The command line to run inside the docker.
@@ -136,7 +136,7 @@ The docker image to pull and spin up. **This docker image must have Python 2.7 i
 The list of Mesos resources to request for this task. `cpus`, `mem`, and `disk` are mandatory; `memunit` and `diskunit` are optional and will be set to `"MB"` if you don't specify them.
 
 #####`outputs`
-A list of files to upload back to the cloud after the work is done. The value for `cloud` must be a `gs://` file path (`boss://` isn't supported for upload).
+A list of files to upload back to the cloud after the work is done. The value for `cloud` must be a `gs://` URI.
 
 #####`stdout` and `stderr`
 If these are specified, the stdout or stderr output from the `commandline` will be uploaded to the cloud at these `gs://` paths.

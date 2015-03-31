@@ -42,7 +42,7 @@ class AuroraThrift(object):
         }
 
     @staticmethod
-    def _build_executor_config(jobid, jobrq, localize_cmd):
+    def _build_executor_config(jobid, jobrq, localize_cmd, vault_api_token):
         """Builds a Python object representing the Task's ExecutorConfig."""
         exconf = {
             "environment" : config.get("aurora.cluster.env"),
@@ -77,17 +77,21 @@ class AuroraThrift(object):
             }
         }
 
+        flags = ''
+        if vault_api_token:
+            flags = "--vault-api-token='{0}'".format(vault_api_token)
+
         # processes to localize down from the "inputs" part of the schema
         downloads = [ AuroraThrift._build_process(
             name = "locdown_" + str(idx),
-            cmd = localize_cmd + ' "' + path['cloud'] + '" "' + path['local'] + '"',
+            cmd = '{0} "{1}" "{2}" {3}'.format(localize_cmd, path['cloud'], path['local'], flags).strip(),
             final = False)
                       for (idx, path) in enumerate(jobrq['inputs']) ]
 
         # processes to localize back up to the cloud from the "outputs" part of the schema
         uploads = [ AuroraThrift._build_process(
             name = "locup_" + str(idx),
-            cmd = localize_cmd + ' "' + path['local'] + '" "' + path['cloud'] + '"',
+            cmd = '{0} "{1}" "{2}" {3}'.format(localize_cmd, path['local'], path['cloud'], flags).strip(),
             final = False)
                     for (idx, path) in enumerate(jobrq['outputs'])]
 
@@ -104,26 +108,29 @@ class AuroraThrift(object):
         if jobrq['stdout'] != "":
             task['processes'].append(AuroraThrift._build_process(
                 name = "__locup_stdout",
-                cmd = localize_cmd + ' "' + config.get("aurora.sandboxdir") + '/.logs/' + jobid + '_ps/0/stdout" "' + jobrq['stdout'] + '"',
+                cmd = '{0} "{1}/.logs/{2}_ps/0/stdout" "{3}" {4}'.format(localize_cmd, config.get("aurora.sandboxdir"), jobid, jobrq['stdout'], flags).strip(),
                 final = True))
         if jobrq['stderr'] != "":
             task['processes'].append(AuroraThrift._build_process(
                 name = "__locup_stderr",
-                cmd = localize_cmd + ' "' + config.get("aurora.sandboxdir") + '/.logs/' + jobid + '_ps/0/stderr" "' + jobrq['stderr'] + '"',
+                cmd = '{0} "{1}/.logs/{2}_ps/0/stderr" "{3}" {4}'.format(localize_cmd, config.get("aurora.sandboxdir"), jobid, jobrq['stderr'], flags).strip(),
                 final = True))
 
         exconf['task'] = task
+
+        import json
+        print(json.dumps(exconf, indent=4))
         return exconf
 
     @staticmethod
-    def _build_job_config(jobid, jobrq, user, localize_cmd):
+    def _build_job_config(jobid, jobrq, user, localize_cmd, vault_api_token):
         """Builds the JobConfiguration Thrift object."""
 
         #The executorConfig is a JSON blob passed to the Task and on through to Thermos.
         #It contains most of the data that also goes into the JobConfiguration, so we'll
         #copy out the majority of the values from there to here in an attempt to keep
         #them in sync.
-        exconf = munch.munchify(AuroraThrift._build_executor_config(jobid, jobrq, localize_cmd))
+        exconf = munch.munchify(AuroraThrift._build_executor_config(jobid, jobrq, localize_cmd, vault_api_token))
 
         owner = Identity(role=exconf.role, user=user)
         key = JobKey(
@@ -164,8 +171,8 @@ class AuroraThrift(object):
             taskConfig=task,
             instanceCount=1)
 
-    def requestjob(self, jobid, jobrq):
-        jobconf = AuroraThrift._build_job_config(jobid, jobrq, getpass.getuser(), self.localize_cmd)
+    def requestjob(self, jobid, jobrq, vault_api_token):
+        jobconf = AuroraThrift._build_job_config(jobid, jobrq, getpass.getuser(), self.localize_cmd, vault_api_token)
         resp = self.client.createJob(jobconf, None, SessionKey(mechanism="UNAUTHENTICATED", data="UNAUTHENTICATED"))
         log.debug(resp)
 
@@ -176,6 +183,7 @@ class AuroraThrift(object):
         response = self.client.getTasksWithoutConfigs(TaskQuery(jobKeys=[jobkey]))
         job_tasks = response.result.scheduleStatusResult.tasks
         jobresult = self.get_status_for_job(jobkey, job_tasks)
+        print('STATUS', jobresult)
         return jobresult
 
     def get_status_for_job(self, jobkey, job_tasks):

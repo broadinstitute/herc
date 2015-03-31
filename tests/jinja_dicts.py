@@ -1,7 +1,7 @@
 full_submit = {
 	'processes' : [
 		{ 'name' : "locdown_0", 'cmd' : 'localizer "gs://foo" "/foo"' },
-		{ 'name' : "locdown_1", 'cmd' : 'localizer "boss://bar" "/bar"' },
+		{ 'name' : "locdown_1", 'cmd' : 'localizer "http://bar" "/bar"' },
 		{ 'name' : "TESTJOB_ps", 'cmd' : 'echo Hello herc! > /baz' },
 		{ 'name' : "locup_0", 'cmd' : 'localizer "/baz" "gs://baz"' }
 	],
