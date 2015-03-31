@@ -95,7 +95,7 @@ class submit(base):
 
         # Validate the request against the schema, filling in defaults. This will raise an HTTPError if it fails validation.
         jobrq = yield jsonvalidate.validate(self.request.body.decode('utf-8'), self.submit_schema)
-        jobid = yield scheduler.requestjob(jobrq)
+        jobid = yield scheduler.requestjob(jobrq, vault_api_token=self.get_cookie('iPlanetDirectoryPro'))
 
         self.write(json.dumps({'jobid': jobid}))
         self.finish()

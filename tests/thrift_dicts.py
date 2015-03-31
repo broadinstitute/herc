@@ -41,7 +41,7 @@ exconf = {
             },
             {
                 "name": "locdown_1",
-                "cmdline": 'localizer "boss://bar" "/bar"',
+                "cmdline": 'localizer "http://bar" "/bar"',
                 "final": False, "daemon": False, "ephemeral": False,
                 "max_failures": 1, "min_duration": 5
             },

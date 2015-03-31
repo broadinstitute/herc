@@ -5,7 +5,7 @@
             "local" : "/foo"
         },
         {
-            "cloud" : "boss://bar",
+            "cloud" : "http://bar",
             "local" : "/bar"
         }
     ],

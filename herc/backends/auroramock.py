@@ -7,7 +7,7 @@ class AuroraMock(object):
     def __init__(self, fakestatuspath = "data/stub_aurora_jobstatus.json"):
         self.fakestatuspath = fakestatuspath
 
-    def requestjob(self, jobid, jobrq):
+    def requestjob(self, jobid, jobrq, vault_api_token):
         """No return value required; nothing to do."""
         return None
 

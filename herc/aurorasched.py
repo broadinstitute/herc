@@ -48,7 +48,7 @@ def get_backend():
         raise backends.BackendInitException("Failed to find a working Aurora backend!")
 
 @async.usepool('aurora')
-def requestjob(jobrq):
+def requestjob(jobrq, vault_api_token):
     """Takes the job request object and converts it into an Aurora definition file.
     Creates a GUID and submits the Aurora definition file to Aurora with the GUID.
     """
@@ -56,7 +56,7 @@ def requestjob(jobrq):
     # create a GUID for this job.
     jobid = "job_" + str(uuid.uuid4()).replace('-', '_')
 
-    get_backend().requestjob(jobid, jobrq)
+    get_backend().requestjob(jobid, jobrq, vault_api_token)
 
     return jobid
 
