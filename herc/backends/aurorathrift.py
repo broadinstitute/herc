@@ -118,8 +118,6 @@ class AuroraThrift(object):
 
         exconf['task'] = task
 
-        import json
-        print(json.dumps(exconf, indent=4))
         return exconf
 
     @staticmethod
@@ -183,7 +181,6 @@ class AuroraThrift(object):
         response = self.client.getTasksWithoutConfigs(TaskQuery(jobKeys=[jobkey]))
         job_tasks = response.result.scheduleStatusResult.tasks
         jobresult = self.get_status_for_job(jobkey, job_tasks)
-        print('STATUS', jobresult)
         return jobresult
 
     def get_status_for_job(self, jobkey, job_tasks):

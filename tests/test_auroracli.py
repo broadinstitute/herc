@@ -11,8 +11,6 @@ class TestAuroraCLI(TestCase):
             fullrq = json.load(fullsub)
 
         jinjadict = AuroraCLI._build_jinja_dict("TESTJOB", fullrq, "localizer", None)
-        print(json.dumps(jinjadict, indent=4))
-        print(json.dumps(jinja_dicts.full_submit, indent=4))
         self.assertEqual( jinjadict, jinja_dicts.full_submit )
 
         # TODO: Test that jinja correctly renders an .aurora file out of the jinjadict
