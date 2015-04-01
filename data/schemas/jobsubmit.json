@@ -40,7 +40,7 @@
         "resources": {
             "type" : "object",
             "properties" : {
-                "cpus" : { "type" : "integer", "minimum": 1 },
+                "cpus" : { "type" : "number", "minimum": 0.1 },
                 "mem" :  { "type" : "integer", "minimum": 1 },
                 "memunit" : { "$ref": "#/definitions/bytesunit" },
                 "disk" : { "type" : "integer", "minimum": 1 },
