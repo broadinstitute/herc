@@ -3,5 +3,5 @@
 VENV_DIR=/herc_venv
 
 source $VENV_DIR/bin/activate
-herc
+herc --debug
 deactivate
