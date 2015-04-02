@@ -26,9 +26,10 @@ class base(RequestHandler):
         self.set_header('Access-Control-Allow-Origin',	   '*')
         self.set_header('Access-Control-Allow-Credentials', 'true')
         self.submit_schema = self.get_data_path('data/schemas/jobsubmit.json')
-        self.resource_listing = self.get_data_path('data/swagger/resource_listing.json')
-        self.status = self.get_data_path('data/swagger/status.json')
-        self.submit = self.get_data_path('data/swagger/submit.json')
+        self.swagger_resource_listing = self.get_data_path('data/swagger/resource_listing.json')
+        self.swagger_status = self.get_data_path('data/swagger/status.json')
+        self.swagger_submit = self.get_data_path('data/swagger/submit.json')
+        self.swagger_sleep = self.get_data_path('data/swagger/sleep.json')
 
     def write_error(self, status_code, **kwargs):
         if self.settings.get("serve_traceback") and "exc_info" in kwargs:
@@ -82,22 +83,29 @@ class index(base):
 class swagger_apidocs(base):
 
     def get(self):
-        with open(self.resource_listing, 'r', encoding="utf-8") as resource_listing_json:
+        with open(self.swagger_resource_listing, 'r', encoding="utf-8") as resource_listing_json:
             self.write(resource_listing_json.read())
         self.finish()
 
 class swagger_status(base):
 
     def get(self):
-        with open(self.status, 'r', encoding="utf-8") as status:
+        with open(self.swagger_status, 'r', encoding="utf-8") as status:
             self.write(status.read())
             self.finish()
 
 class swagger_submit(base):
 
     def get(self):
-        with open(self.submit, 'r', encoding="utf-8") as submit:
+        with open(self.swagger_submit, 'r', encoding="utf-8") as submit:
             self.write(submit.read())
+            self.finish()
+
+class swagger_sleep(base):
+
+    def get(self):
+        with open(self.swagger_sleep, 'r', encoding="utf-8") as sleep:
+            self.write(sleep.read())
             self.finish()
 
 class schema(base):
@@ -159,7 +167,8 @@ endpoint_mapping = {
     r'/sleep/(.*)/?': sleep,
     r'/api-docs/?': swagger_apidocs,
     r'/api-docs/status/?': swagger_status,
-    r'/api-docs/submit/?' : swagger_submit
+    r'/api-docs/submit/?' : swagger_submit,
+    r'/api-docs/sleep/?' : swagger_sleep
 }
 
 

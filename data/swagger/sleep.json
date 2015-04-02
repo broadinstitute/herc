@@ -1,0 +1,43 @@
+{
+    "apiVersion": "0.1",
+    "swaggerVersion": "1.2",
+    "basePath": "/",
+    "resourcePath": "/sleep",
+    "apis": [
+        {
+            "path": "/sleep/{seconds}",
+            "operations": [
+                {
+                    "type": "void",
+                    "summary": "Make Herc sleep for the specified number of seconds",
+                    "nickname": "Sleep",
+                    "notes": "",
+                    "method": "GET",
+                    "parameters": [
+                        {
+                            "name": "seconds",
+                            "description": "The number of seconds to sleep for",
+                            "paramType": "path",
+                            "required": true,
+                            "type": "integer",
+                            "allowMultiple": false
+                        }
+                    ],
+                    "produces": [
+                        "application/json"
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 200,
+                            "message": "Successful request"
+                        },
+                        {
+                            "code": 500,
+                            "message": "Herc server error"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
