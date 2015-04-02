@@ -1,0 +1,26 @@
+{
+  "apiVersion":"0.1",
+  "swaggerVersion":"1.2",
+  "apis":[
+           {
+            "path":"/status",
+            "description" : "Check status of a job"
+           },
+           {
+             "path":"/submit",
+             "description" : "Submit a job"
+           },
+           {
+             "path":"/sleep",
+             "description" : "Sleep (for testing purposes)"
+           }
+         ],
+  "info": {
+            "title":"Herc API",
+             "description":"Herc",
+             "termsOfServiceUrl":"http://www.github.com/broadinstitute/herc",
+             "contact":"herc@broadinstitute.org",
+             "license":"BSD",
+             "licenseUrl":"http://opensource.org/licenses/BSD-3-Clause"
+          }
+}

@@ -26,6 +26,9 @@ class base(RequestHandler):
         self.set_header('Access-Control-Allow-Origin',	   '*')
         self.set_header('Access-Control-Allow-Credentials', 'true')
         self.submit_schema = self.get_data_path('data/schemas/jobsubmit.json')
+        self.resource_listing = self.get_data_path('data/swagger/resource_listing.json')
+        self.status = self.get_data_path('data/swagger/status.json')
+        self.submit = self.get_data_path('data/swagger/submit.json')
 
     def write_error(self, status_code, **kwargs):
         if self.settings.get("serve_traceback") and "exc_info" in kwargs:
@@ -75,6 +78,27 @@ class index(base):
 
         return docs_dictionary
 
+
+class swagger_apidocs(base):
+
+    def get(self):
+        with open(self.resource_listing, 'r', encoding="utf-8") as resource_listing_json:
+            self.write(resource_listing_json.read())
+        self.finish()
+
+class swagger_status(base):
+
+    def get(self):
+        with open(self.status, 'r', encoding="utf-8") as status:
+            self.write(status.read())
+            self.finish()
+
+class swagger_submit(base):
+
+    def get(self):
+        with open(self.submit, 'r', encoding="utf-8") as submit:
+            self.write(submit.read())
+            self.finish()
 
 class schema(base):
 
@@ -132,7 +156,10 @@ endpoint_mapping = {
     r'/schema/?': schema,
     r'/submit/?': submit,
     r'/status/(.*)/?': status,
-    r'/sleep/(.*)/?': sleep
+    r'/sleep/(.*)/?': sleep,
+    r'/api-docs/?': swagger_apidocs,
+    r'/api-docs/status/?': swagger_status,
+    r'/api-docs/submit/?' : swagger_submit
 }
 
 

@@ -1,0 +1,65 @@
+{
+    "apiVersion": "0.1",
+    "swaggerVersion": "1.2",
+    "basePath": "/",
+    "resourcePath": "/status"
+    "apis": [
+        {
+            "path": "/status/{jobid}",
+            "operations": [
+                {
+                    "type": "Status"
+                    "summary": "Check job status",
+                    "nickname": "Status",
+                    "notes": "",
+                    "method": "GET",
+                    "parameters": [
+                        {
+                            "name": "jobid",
+                            "description": "The Aurora job id",
+                            "paramType": "path",
+                            "required": true,
+                            "type": "string"
+                            "allowMultiple": false,
+                        }
+                    ],
+                    "produces": [
+                        "application/json"
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 200,
+                            "message": "Successful request"
+                        },
+                        {
+                            "code": 500,
+                            "message": "Herc server error"
+                        }
+                    ],
+
+
+                }
+            ]
+        }
+    ],
+    "models": {
+        "Status": {
+            "id": "Status",
+            "description": "Job status",
+            "properties": {
+                "jobid": {
+                    "description": "The Aurora job id",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "The job status",
+                    "type": "string"
+                },
+                "time": {
+                    "description": "The time when the job moved into this status",
+                    "type": "long"
+                }
+            }
+        }
+    }
+}
