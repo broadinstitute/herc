@@ -25,11 +25,11 @@ class base(RequestHandler):
         self.set_header('Content-Type', 'application/json')
         self.set_header('Access-Control-Allow-Origin',	   '*')
         self.set_header('Access-Control-Allow-Credentials', 'true')
-        self.submit_schema = self.get_data_path('data/schemas/jobsubmit.json')
-        self.swagger_resource_listing = self.get_data_path('data/swagger/resource_listing.json')
-        self.swagger_status = self.get_data_path('data/swagger/status.json')
-        self.swagger_submit = self.get_data_path('data/swagger/submit.json')
-        self.swagger_sleep = self.get_data_path('data/swagger/sleep.json')
+        self.submit_schema = self.get_data_path(config.get('job.submit.schema'))
+        self.swagger_resource_listing = self.get_data_path(config.get('swagger.listing'))
+        self.swagger_status = self.get_data_path(config.get('swagger.status'))
+        self.swagger_submit = self.get_data_path(config.get('swagger.submit'))
+        self.swagger_sleep = self.get_data_path(config.get('swagger.sleep'))
 
     def write_error(self, status_code, **kwargs):
         if self.settings.get("serve_traceback") and "exc_info" in kwargs:
