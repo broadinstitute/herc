@@ -2,7 +2,7 @@
     "apiVersion": "0.1",
     "swaggerVersion": "1.2",
     "basePath": "/",
-    "resourcePath": "/submit"
+    "resourcePath": "/submit",
     "apis": [
         {
             "path": "/submit",
@@ -12,14 +12,14 @@
                     "nickname": "Submit",
                     "notes": "",
                     "method": "POST",
-                    "type": "Status"
+                    "type": "Status",
                     "parameters": [
                         {
                             "name": "body",
                             "description": "The job submission request json",
                             "paramType": "body",
                             "required": true,
-                            "type": "JobSubmission"
+                            "type": "JobSubmission",
                             "allowMultiple": false,
                         }
                     ],
@@ -35,9 +35,7 @@
                             "code": 500,
                             "message": "Herc server error"
                         }
-                    ],
-
-
+                    ]
                 }
             ]
         }
@@ -105,7 +103,7 @@
                 "inputs",
                 "outputs",
                 "resources"
-            ],
+            ]
         },
         "Resources" : {
             "id" : "Resources",
@@ -129,12 +127,12 @@
                 "memunit": {
                     "$ref": "bytesunit"
                 }
-            }
+            },
             "required": [
                 "cpus",
                 "mem",
                 "disk"
-            ],
+            ]
         },
         "pathpair" : {
             "properties": {
@@ -153,7 +151,7 @@
         "bytesunit" : {
             "type": "string",
             "defaultValue": "MB",
-            "enum": ["BYTES","KB","MB","GB",TB"]
+            "enum": ["BYTES","KB","MB","GB","TB"]
         }
     }
 }

@@ -2,13 +2,13 @@
     "apiVersion": "0.1",
     "swaggerVersion": "1.2",
     "basePath": "/",
-    "resourcePath": "/status"
+    "resourcePath": "/status",
     "apis": [
         {
             "path": "/status/{jobid}",
             "operations": [
                 {
-                    "type": "Status"
+                    "type": "Status",
                     "summary": "Check job status",
                     "nickname": "Status",
                     "notes": "",
@@ -19,8 +19,8 @@
                             "description": "The Aurora job id",
                             "paramType": "path",
                             "required": true,
-                            "type": "string"
-                            "allowMultiple": false,
+                            "type": "string",
+                            "allowMultiple": false
                         }
                     ],
                     "produces": [
@@ -35,9 +35,7 @@
                             "code": 500,
                             "message": "Herc server error"
                         }
-                    ],
-
-
+                    ]
                 }
             ]
         }
