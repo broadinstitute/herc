@@ -1,6 +1,7 @@
 import uuid
 import json
 import re
+import random
 from tornado.web import HTTPError
 import threading
 import importlib
@@ -47,6 +48,11 @@ def get_backend():
     except KeyError:
         raise backends.BackendInitException("Failed to find a working Aurora backend!")
 
+def pronounceable():
+    consonants = "bcdfghlmnrstvz"
+    vowels = "aeiou"
+    return random.choice(consonants) + random.choice(vowels) + random.choice(consonants) + random.choice(vowels) + random.choice(consonants)
+
 @async.usepool('aurora')
 def requestjob(jobrq, vault_api_token):
     """Takes the job request object and converts it into an Aurora definition file.
@@ -54,7 +60,7 @@ def requestjob(jobrq, vault_api_token):
     """
 
     # create a GUID for this job.
-    jobid = "job_" + str(uuid.uuid4()).replace('-', '_')
+    jobid = "job_" + pronounceable() + "_" + str(uuid.uuid4()).replace('-', '_')
 
     get_backend().requestjob(jobid, jobrq, vault_api_token)
 
