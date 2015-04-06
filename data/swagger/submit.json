@@ -20,7 +20,7 @@
                             "paramType": "body",
                             "required": true,
                             "type": "JobSubmission",
-                            "allowMultiple": false,
+                            "allowMultiple": false
                         }
                     ],
                     "produces": [
