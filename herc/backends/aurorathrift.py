@@ -180,6 +180,10 @@ class AuroraThrift(object):
                                     name=jobid)
         response = self.client.getTasksWithoutConfigs(TaskQuery(jobKeys=[jobkey]))
         job_tasks = response.result.scheduleStatusResult.tasks
+
+        if job_tasks is None or len(job_tasks) == 0:
+            return { "jobspec" : str(jobkey), "error" : "No matching jobs found" }
+
         jobresult = self.get_status_for_job(jobkey, job_tasks)
         return jobresult
 
