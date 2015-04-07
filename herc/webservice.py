@@ -112,6 +112,17 @@ class status(base):
         self.finish()
 
 
+class kill(base):
+
+    @gen.coroutine
+    def delete(self, jobid):
+        """DELETE /kill/<jobid>
+        Kill all instances of this job."""
+        killed = yield scheduler.kill(jobid)
+        self.write(json.dumps(killed, indent=1))
+        self.finish()
+
+
 class sleep(base):
 
     @gen.coroutine
@@ -132,7 +143,8 @@ endpoint_mapping = {
     r'/schema/?': schema,
     r'/submit/?': submit,
     r'/status/(.*)/?': status,
-    r'/sleep/(.*)/?': sleep
+    r'/sleep/(.*)/?': sleep,
+    r'/kill/(.*)/?': kill
 }
 
 
