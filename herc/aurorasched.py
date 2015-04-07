@@ -131,7 +131,7 @@ def status(jobid):
 
     jobresult = get_backend().status(jobid)
 
-    if hasattr(jobresult, 'error'):
+    if hasattr(jobresult, 'error') or 'error' in jobresult:
         # {"jobspec":"herc/jclouds/devel/nonexistent_job","error":"No matching jobs found"}
         raise HTTPError(404, "Job ID " + jobid + " not found")
     else:
