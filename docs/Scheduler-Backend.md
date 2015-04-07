@@ -56,5 +56,17 @@ Request an update on the status of the job with `jobid`.
 
 **Output**
 
-* A string of JSON representing the job's status and history. A simple example of what this looks like is 
-[here](../data/stub_aurora_jobstatus.json); a more complex example is [here](../data/example_aurora_jobstatus.json). 
+* A Python object representing the job's status and history. A JSON-serialized version of what this looks like is [here](../data/stub_aurora_jobstatus.json); a more complex example is [here](../data/example_aurora_jobstatus.json). 
+
+##### `def kill(self, jobid):`
+
+Kills all running instances of the job with id `jobid`.
+
+**Inputs**
+
+* `jobid` The name of an Aurora job, previously passed to a `requestjob()` call on some backend.
+
+**Output**
+
+* If the job exists or doesn't, a dict with the key `success` and value either `Job not found.` or `Job killed.`, depending on whether the job was found.
+* If the call fails for some other reason, a dict with the key `error` and a string value containing more details.

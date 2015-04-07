@@ -149,3 +149,11 @@ def status(jobid):
         output.update(extradict)
 
     return output
+
+
+@async.usepool('aurora')
+def kill(jobid):
+    """Kills all instances of this task."""
+
+    jobresult = get_backend().kill(jobid)
+    return jobresult

@@ -18,3 +18,6 @@ class AuroraMock(object):
             statusjson = json.loads(statusstring)
             munchifiedstatus = munch.munchify(statusjson)
             return munchifiedstatus
+
+    def kill(self, jobid):
+        return { "success" : "Job killed." }

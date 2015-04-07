@@ -56,6 +56,7 @@ class AuroraCLI(object):
         self.localize_cmd = config.get("auroracli.localizecmd")
         self.submit_cmd = config.get("auroracli.submitcmd").split()
         self.status_cmd = config.get("auroracli.statuscmd").split()
+        self.kill_cmd = config.get("auroracli.killcmd").split()
         self.cluster = config.get("aurora.cluster.name")
         self.role = config.get("aurora.cluster.role")
         self.env = config.get("aurora.cluster.env")
@@ -151,3 +152,17 @@ class AuroraCLI(object):
         # scheduler expects a munchified object 
         munchifiedresult = munch.munchify(jobresult)
         return munchifiedresult
+
+    def kill(self, jobid):
+        # Boils down to: aurora job killall cluster/role/env/jobid
+        (rc, stdout, stderr) = run(self.kill_cmd + ['/'.join([self.cluster, self.role, self.env, jobid])])
+        outlines = stdout.split('\n')
+        errlines = stderr.split('\n')
+
+        if outlines[-1].strip() == "Job killall succeeded":
+            if errlines[-1].strip().startswith("No tasks to kill found"):
+                return { "success" : "Job not found." }
+            else:
+                return { "success" : "Job killed." }
+        else:
+            return { "error" : stderr }

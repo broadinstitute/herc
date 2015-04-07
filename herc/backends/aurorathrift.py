@@ -219,3 +219,7 @@ class AuroraThrift(object):
         return {"job": str(jobkey),
             "active": [get_task_status_object(task) for task in active_tasks],
             "inactive": [get_task_status_object(task) for task in inactive_tasks]}
+
+    def kill(self, jobid):
+        # Response killTasks(1: TaskQuery query, 3: Lock lock, 2: SessionKey session)
+        pass
