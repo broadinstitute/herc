@@ -1,4 +1,4 @@
-import uuid
+import shortuuid
 import json
 import re
 import random
@@ -60,7 +60,7 @@ def requestjob(jobrq, vault_api_token):
     """
 
     # create a GUID for this job.
-    jobid = "job_" + pronounceable() + "_" + str(uuid.uuid4()).replace('-', '_')
+    jobid = "job_" + pronounceable() + "_" + str(shortuuid.uuid()).replace('-', '_')
 
     get_backend().requestjob(jobid, jobrq, vault_api_token)
 
