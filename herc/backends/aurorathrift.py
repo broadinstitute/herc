@@ -221,5 +221,17 @@ class AuroraThrift(object):
         return jobresult
 
     def kill(self, jobid):
-        # Response killTasks(1: TaskQuery query, 3: Lock lock, 2: SessionKey session)
-        pass
+        jobkey = JobKey(role=config.get("aurora.cluster.role"),
+                        environment=config.get("aurora.cluster.env"),
+                        name=jobid)
+        response = self.client.killTasks(TaskQuery(jobKeys=[jobkey]), None, SessionKey(mechanism="UNAUTHENTICATED", data="UNAUTHENTICATED"))
+
+        if response.responseCode == ResponseCode.OK:
+            if len(response.details) == 0:
+                return { "success" : "Job killed." }
+            elif response.details[0].message == 'No tasks to kill.':
+                return { "success" : "Job not found." }
+            else:
+                return { "success" : response.details[0].message }
+        else:
+            return { "error" : response.details[0].message }
