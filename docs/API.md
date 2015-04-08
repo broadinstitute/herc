@@ -239,6 +239,40 @@ Vary: Accept-Encoding
 }
 ```
 
+## `DELETE /kill/<jobid>`
+
+Kills all running instances of the job with id `jobid`.
+
+### Example
+
+HTTPie:
+```bash
+$ http --verify=no DELETE https://localhost:4372/kill/job_795aca97_8678_4af7_ade1_e4fadd7bff78
+```
+
+cURL:
+```bash
+$ curl --insecure -X DELETE https://localhost:4372/kill/job_795aca97_8678_4af7_ade1_e4fadd7bff78
+```
+
+Response:
+```http
+HTTP/1.1 200 OK
+Access-Control-Allow-Credentials: true
+Access-Control-Allow-Origin: *
+Content-Encoding: gzip
+Content-Length: 115
+Content-Type: application/json
+Date: Thu, 26 Feb 2015 16:11:32 GMT
+Etag: "6965df488267a089cf5b2e245bb38d33c4628551"
+Server: TornadoServer/4.1
+Vary: Accept-Encoding
+
+{
+    "success": "Job killed."
+}
+```
+
 ## `GET /sleep/<n>`
 
 Test endpoint that keeps the connection open for n seconds and then returns how long it was open for.
