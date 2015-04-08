@@ -169,6 +169,39 @@ class AuroraThrift(object):
             taskConfig=task,
             instanceCount=1)
 
+    def _get_status_for_job(self, jobkey, job_tasks):
+        """Make and return a job status object from a raw thrift response."""
+        def is_active(task):
+            return task.status in ACTIVE_STATES
+
+        active_tasks = sorted([t for t in job_tasks if is_active(t)],
+                              key=lambda task: task.assignedTask.instanceId)
+        inactive_tasks = sorted([t for t in job_tasks if not is_active(t)],
+                                key=lambda task: task.assignedTask.instanceId)
+        result = [self._get_job_status_object(jobkey, active_tasks, inactive_tasks)]
+        return result
+
+    def _get_job_status_object(self, jobkey, active_tasks, inactive_tasks):
+        """Return an object containing info on the tasks running for a job."""
+        def get_task_status_object(scheduled_task):
+            """Return a single task object"""
+            task = scheduled_task
+            # Now, clean it up: take all fields that are actually enums, and convert
+            # their values to strings.
+            task.status = ScheduleStatus._VALUES_TO_NAMES[task.status]
+            events = sorted(task.taskEvents, key=lambda event: event.timestamp)
+            for event in events:
+                event.status = ScheduleStatus._VALUES_TO_NAMES[event.status]
+            # convert boolean fields to boolean value names.
+            assigned = task.assignedTask
+            task_config = assigned.task
+            task_config.isService = (task_config.isService != 0)
+            return task
+
+        return {"job": str(jobkey),
+                "active": [get_task_status_object(task) for task in active_tasks],
+                "inactive": [get_task_status_object(task) for task in inactive_tasks]}
+
     def requestjob(self, jobid, jobrq, vault_api_token):
         jobconf = AuroraThrift._build_job_config(jobid, jobrq, getpass.getuser(), self.localize_cmd, vault_api_token)
         resp = self.client.createJob(jobconf, None, SessionKey(mechanism="UNAUTHENTICATED", data="UNAUTHENTICATED"))
@@ -184,41 +217,8 @@ class AuroraThrift(object):
         if job_tasks is None or len(job_tasks) == 0:
             return { "jobspec" : str(jobkey), "error" : "No matching jobs found" }
 
-        jobresult = self.get_status_for_job(jobkey, job_tasks)
+        jobresult = self._get_status_for_job(jobkey, job_tasks)
         return jobresult
-
-    def get_status_for_job(self, jobkey, job_tasks):
-        """Make and return a job status object from a raw thrift response."""
-        def is_active(task):
-            return task.status in ACTIVE_STATES
-
-        active_tasks = sorted([t for t in job_tasks if is_active(t)],
-                            key=lambda task: task.assignedTask.instanceId)
-        inactive_tasks = sorted([t for t in job_tasks if not is_active(t)],
-                              key=lambda task: task.assignedTask.instanceId)
-        result = [self.get_job_status_object(jobkey, active_tasks, inactive_tasks)]
-        return result
-
-    def get_job_status_object(self, jobkey, active_tasks, inactive_tasks):
-        """Return an object containing info on the tasks running for a job."""
-        def get_task_status_object(scheduled_task):
-          """Return a single task object""" 
-          task = scheduled_task
-          # Now, clean it up: take all fields that are actually enums, and convert
-          # their values to strings.
-          task.status = ScheduleStatus._VALUES_TO_NAMES[task.status]
-          events = sorted(task.taskEvents, key=lambda event: event.timestamp)
-          for event in events:
-            event.status = ScheduleStatus._VALUES_TO_NAMES[event.status]
-          # convert boolean fields to boolean value names.
-          assigned = task.assignedTask
-          task_config = assigned.task
-          task_config.isService = (task_config.isService != 0)
-          return task
-
-        return {"job": str(jobkey),
-            "active": [get_task_status_object(task) for task in active_tasks],
-            "inactive": [get_task_status_object(task) for task in inactive_tasks]}
 
     def kill(self, jobid):
         # Response killTasks(1: TaskQuery query, 3: Lock lock, 2: SessionKey session)
