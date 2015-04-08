@@ -8,7 +8,8 @@ import importlib
 from . import async
 from . import config
 from . import backends
-
+import logging
+log = logging.getLogger(__name__)
 
 def _importclass(classpath):
     """Turns a string representing a Python class into the actual class object.
@@ -21,32 +22,29 @@ def _importclass(classpath):
     # get the class, will raise AttributeError if class cannot be found
     return getattr(m, path[1])
 
+def construct_backend():
+    backends_list = config.get("scheduler.backends")
+    backend = None
+    for backend_path in backends_list:
+        try:
+            backend_class = _importclass(backend_path)
+            backend = backend_class()
+            break #bail as soon as we get a match
+        except (ImportError, AttributeError):
+            log.debug("Couldn't find class for backend:", backend_path)
+        except backends.BackendInitException as be:
+            log.debug("Backend", backend_path, "failed to initialize with error:")
+            log.debug(be)
+            log.debug("Trying next backend...")
+    if backend is None:
+        raise backends.BackendInitException("Failed to find a working Aurora backend!")
+    return backend
+
 #Dict of Aurora backend instances keyed by thread ID.
 #Ensures that two Aurora commands don't interfere by e.g. attempting to write to the same socket.
-aurora_backends = dict()
+aurora_backends = async.ThreadedDict(construct_backend)
 def get_backend():
-    thrid = threading.get_ident()
-    try:
-        return aurora_backends[thrid]
-    except KeyError:
-        #No backend! Create it.
-        backends_list = config.get("scheduler.backends")
-        for backend_path in backends_list:
-            try:
-                backend_class = _importclass(backend_path)
-                aurora_backends[thrid] = backend_class()
-                break #bail as soon as we get a match
-            except (ImportError, AttributeError):
-                print("Couldn't find class for backend:", backend_path)
-            except backends.BackendInitException as be:
-                print("Backend", backend_path, "failed to initialize with error:")
-                print(be)
-                print("Trying next backend...")
-
-    try:
-        return aurora_backends[thrid]
-    except KeyError:
-        raise backends.BackendInitException("Failed to find a working Aurora backend!")
+    return aurora_backends.get()
 
 def pronounceable():
     consonants = "bcdfghlmnrstvz"
