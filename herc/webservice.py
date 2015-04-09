@@ -12,6 +12,7 @@ import time
 import logging
 from . import async
 from . import jsonvalidate
+from . import docker
 from . import aurorasched as scheduler
 from . import config
 
@@ -95,6 +96,10 @@ class submit(base):
 
         # Validate the request against the schema, filling in defaults. This will raise an HTTPError if it fails validation.
         jobrq = yield jsonvalidate.validate(self.request.body.decode('utf-8'), self.submit_schema)
+
+        # Make sure the Docker image actually exists, because Aurora retries jobs forever if it fails to do a Docker pull.
+        yield docker.verify_image(jobrq['docker'])
+
         jobid = yield scheduler.requestjob(jobrq, vault_api_token=self.get_cookie('iPlanetDirectoryPro'))
 
         self.write(json.dumps({'jobid': jobid}))
