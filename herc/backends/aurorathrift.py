@@ -81,6 +81,12 @@ class AuroraThrift(object):
         if vault_api_token:
             flags = "--vault-api-token='{0}'".format(vault_api_token)
 
+        # process to turn /job into a symlink so that inputs and outputs are counted in disk space calculations
+        sandbox = config.get("aurora.sandboxdir").rstrip('/')
+        symlink = [ AuroraThrift._build_process(name = "__symlink_twiddle",
+                                                cmd = 'mkdir "{sandbox}/__jobio"; ln -s "{sandbox}/__jobio" "/job"'.format(sandbox=sandbox),
+                                                final = False) ]
+
         # processes to localize down from the "inputs" part of the schema
         downloads = [ AuroraThrift._build_process(
             name = "locdown_" + str(idx),
@@ -96,7 +102,7 @@ class AuroraThrift(object):
                     for (idx, path) in enumerate(jobrq['outputs'])]
 
         # list of processes: download inputs, run the commandline, upload outputs
-        task['processes'] = downloads \
+        task['processes'] = symlink + downloads \
                             + [AuroraThrift._build_process(name = jobid + '_ps', cmd = jobrq['commandline'], final = False)] \
                             + uploads
 

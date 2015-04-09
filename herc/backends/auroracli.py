@@ -72,6 +72,11 @@ class AuroraCLI(object):
         # the job request we're going to fill in
         jr = dict()
 
+        # process to turn /job into a symlink so that inputs and outputs are counted in disk space calculations
+        sandbox = config.get("aurora.sandboxdir").rstrip('/')
+        symlink = [{ 'name': "__symlink_twiddle",
+                     'cmd': 'mkdir "{sandbox}/__jobio"; ln -s "{sandbox}/__jobio" "/job"'.format(sandbox=sandbox) }]
+
         # processes to localize down from the "inputs" part of the schema
         downloads = [{'name': "locdown_" + str(idx),
                       'cmd': '{0} "{1}" "{2}" {3}'.format(localize_cmd, path['cloud'], path['local'], flags).strip()}
@@ -83,7 +88,7 @@ class AuroraCLI(object):
                    for (idx, path) in enumerate(jobrq['outputs'])]
 
         # list of processes: download inputs, run the commandline, upload outputs
-        jr['processes'] = downloads + [{'name': jobid + '_ps', 'cmd': jobrq['commandline']}] + uploads
+        jr['processes'] = symlink + downloads + [{'name': jobid + '_ps', 'cmd': jobrq['commandline']}] + uploads
 
         #finalizing processes to localize stdout and stderr up to gcs
         #these are guaranteed to run even if the task fails because one of the other processes fail.

@@ -2,6 +2,11 @@ from unittest import TestCase
 import tests.jinja_dicts as jinja_dicts
 from herc.backends import AuroraCLI
 import json
+import mock
+
+fake_config = {
+    "aurora.sandboxdir" : "/mnt/mesos/sandbox/sandbox"
+}
 
 class TestAuroraCLI(TestCase):
     maxDiff = None
@@ -10,8 +15,10 @@ class TestAuroraCLI(TestCase):
         with open('tests/data/full_submit.json', 'r', encoding="utf-8") as fullsub:
             fullrq = json.load(fullsub)
 
-        jinjadict = AuroraCLI._build_jinja_dict("TESTJOB", fullrq, "localizer", None)
-        self.assertEqual( jinjadict, jinja_dicts.full_submit )
+        with mock.patch('herc.config.get') as config:
+            config.side_effect = lambda val : fake_config[val]
+            jinjadict = AuroraCLI._build_jinja_dict("TESTJOB", fullrq, "localizer", None)
+            self.assertEqual( jinjadict, jinja_dicts.full_submit )
 
         # TODO: Test that jinja correctly renders an .aurora file out of the jinjadict
 
