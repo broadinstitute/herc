@@ -1,4 +1,4 @@
-import uuid
+import shortuuid
 import json
 import re
 import random
@@ -47,21 +47,23 @@ def get_backend():
     return aurora_backends.get()
 
 def pronounceable():
+    """Returns 5 characters, consonant vowel consonant vowel consonant for a pronounceable-ish name."""
     consonants = "bcdfghlmnrstvz"
     vowels = "aeiou"
     return random.choice(consonants) + random.choice(vowels) + random.choice(consonants) + random.choice(vowels) + random.choice(consonants)
+
+def gen_jobid(name=''):
+    """Generates a new job GUID given a job name."""
+    namels = [] if name == "" else [name]
+    return "_".join( namels + [ pronounceable(), str(shortuuid.uuid()) ] )
 
 @async.usepool('aurora')
 def requestjob(jobrq, vault_api_token):
     """Takes the job request object and converts it into an Aurora definition file.
     Creates a GUID and submits the Aurora definition file to Aurora with the GUID.
     """
-
-    # create a GUID for this job.
-    jobid = "job_" + pronounceable() + "_" + str(uuid.uuid4()).replace('-', '_')
-
+    jobid = gen_jobid(jobrq['name'])
     get_backend().requestjob(jobid, jobrq, vault_api_token)
-
     return jobid
 
 # States that Aurora considers terminal (but may end up rescheduled).

@@ -1,4 +1,5 @@
 {
+    "name" : "",
     "inputs" : [
         {
             "cloud" : "gs://foo",

@@ -93,6 +93,7 @@ Below is an example payload:
 
 ```JSON
 {
+    "name" : "MySuperSpecialJob",
     "inputs" : [
         {
             "cloud" : "gs://foo",
@@ -122,6 +123,9 @@ Below is an example payload:
     "stderr" : "gs://stderr"
 }
 ```
+
+##### `name`
+Optional: the name of this job. If given, is used to construct the job id.
 
 ##### `inputs`
 A list of input files to localize. (If you don't have any, just pass an empty list.) You can have as many of these as you like. The values for `cloud` must be either `gs://` or `http://` file paths. The values for `local` must be local file paths.

@@ -29,7 +29,8 @@ setup(name='herc',
           'nose',
           'requests',
           'thrift==1.0.0-py3',
-          'munch'
+          'munch',
+          'shortuuid'
       ],
       entry_points={'console_scripts': ['herc = herc.webservice:main']},
       dependency_links = [urllib.parse.urljoin('file:', os.path.join(os.getcwd(), 'thrift-1.0.0-py3.tar.gz'))],
