@@ -34,6 +34,24 @@ exconf = {
         },
         "processes": [
             {
+                "name": "mkdir",
+                "cmdline": 'mkdir -p /mnt/mesos/sandbox/sandbox/__jobio/input /mnt/mesos/sandbox/sandbox/__jobio/output',
+                "final": False, "daemon": False, "ephemeral": False,
+                "max_failures": 1, "min_duration": 5
+            },
+            {
+                "name": "symlink_in",
+                "cmdline": 'ln -s /mnt/mesos/sandbox/sandbox/__jobio/input /job/input',
+                "final": False, "daemon": False, "ephemeral": False,
+                "max_failures": 1, "min_duration": 5
+            },
+            {
+                "name": "symlink_out",
+                "cmdline": 'ln -s /mnt/mesos/sandbox/sandbox/__jobio/output /job/output',
+                "final": False, "daemon": False, "ephemeral": False,
+                "max_failures": 1, "min_duration": 5
+            },
+            {
                 "name": "locdown_0",
                 "cmdline": 'localizer "gs://foo" "/foo"',
                 "final": False, "daemon": False, "ephemeral": False,
@@ -70,7 +88,7 @@ exconf = {
                 "max_failures": 1, "min_duration": 5
             }
         ],
-        "constraints" : [ { "order" : [ "locdown_0", "locdown_1", "TESTJOB_ps", "locup_0" ] } ]
+        "constraints" : [ { "order" : [ "mkdir", "symlink_in", "symlink_out", "locdown_0", "locdown_1", "TESTJOB_ps", "locup_0" ] } ]
     }
 }
 

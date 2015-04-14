@@ -72,6 +72,13 @@ class AuroraCLI(object):
         # the job request we're going to fill in
         jr = dict()
 
+        symlink_dir = '/mnt/mesos/sandbox/sandbox/__jobio'
+        setup = [
+            {'name': 'mkdir', 'cmd': 'mkdir -p {0}/input {0}/output'.format(symlink_dir)},
+            {'name': 'symlink_in', 'cmd': 'ln -s {}/input /job/input'.format(symlink_dir)},
+            {'name': 'symlink_out', 'cmd': 'ln -s {}/output /job/output'.format(symlink_dir)}
+        ]
+
         # processes to localize down from the "inputs" part of the schema
         downloads = [{'name': "locdown_" + str(idx),
                       'cmd': '{0} "{1}" "{2}" {3}'.format(localize_cmd, path['cloud'], path['local'], flags).strip()}
@@ -83,7 +90,7 @@ class AuroraCLI(object):
                    for (idx, path) in enumerate(jobrq['outputs'])]
 
         # list of processes: download inputs, run the commandline, upload outputs
-        jr['processes'] = downloads + [{'name': jobid + '_ps', 'cmd': jobrq['commandline']}] + uploads
+        jr['processes'] = setup + downloads + [{'name': jobid + '_ps', 'cmd': jobrq['commandline']}] + uploads
 
         #finalizing processes to localize stdout and stderr up to gcs
         #these are guaranteed to run even if the task fails because one of the other processes fail.

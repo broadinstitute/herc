@@ -1,5 +1,8 @@
 full_submit = {
 	'processes' : [
+    { 'name': 'mkdir', 'cmd': 'mkdir -p /mnt/mesos/sandbox/sandbox/__jobio/input /mnt/mesos/sandbox/sandbox/__jobio/output' },
+    { 'name': 'symlink_in', 'cmd': 'ln -s /mnt/mesos/sandbox/sandbox/__jobio/input /job/input' },
+    { 'name': 'symlink_out', 'cmd': 'ln -s /mnt/mesos/sandbox/sandbox/__jobio/output /job/output' },
 		{ 'name' : "locdown_0", 'cmd' : 'localizer "gs://foo" "/foo"' },
 		{ 'name' : "locdown_1", 'cmd' : 'localizer "http://bar" "/bar"' },
 		{ 'name' : "TESTJOB_ps", 'cmd' : 'echo Hello herc! > /baz' },
@@ -10,8 +13,8 @@ full_submit = {
         { 'name' : "__locup_stderr", 'cmd' : 'localizer ".logs/TESTJOB_ps/0/stderr" "gs://stderr"' }
     ],
     'tasks' : [{    'name' : 'TESTJOB_task',
-                    'processes' : [ "locdown_0", "locdown_1", "TESTJOB_ps", "locup_0", "__locup_stdout", "__locup_stderr" ],
-                    'ordering' : [ "locdown_0", "locdown_1", "TESTJOB_ps", "locup_0" ],
+                    'processes' : [ 'mkdir', 'symlink_in', 'symlink_out', "locdown_0", "locdown_1", "TESTJOB_ps", "locup_0", "__locup_stdout", "__locup_stderr" ],
+                    'ordering' : [ 'mkdir', 'symlink_in', 'symlink_out', "locdown_0", "locdown_1", "TESTJOB_ps", "locup_0" ],
                     'cpus' : 1,
                     'mem'  : 16,
                     'memunit' : "MB",
