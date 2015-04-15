@@ -81,6 +81,13 @@ class AuroraThrift(object):
         if vault_api_token:
             flags = "--vault-api-token='{0}'".format(vault_api_token)
 
+        symlink_dir = '/mnt/mesos/sandbox/sandbox/__jobio'
+        setup = [
+            AuroraThrift._build_process(name='mkdir', cmd='mkdir -p {0}/input {0}/output'.format(symlink_dir), final=False),
+            AuroraThrift._build_process(name='symlink_in', cmd='ln -s {}/input /job/input'.format(symlink_dir), final=False),
+            AuroraThrift._build_process(name='symlink_out', cmd='ln -s {}/output /job/output'.format(symlink_dir), final=False)
+        ]
+
         # processes to localize down from the "inputs" part of the schema
         downloads = [ AuroraThrift._build_process(
             name = "locdown_" + str(idx),
@@ -96,9 +103,10 @@ class AuroraThrift(object):
                     for (idx, path) in enumerate(jobrq['outputs'])]
 
         # list of processes: download inputs, run the commandline, upload outputs
-        task['processes'] = downloads \
-                            + [AuroraThrift._build_process(name = jobid + '_ps', cmd = jobrq['commandline'], final = False)] \
-                            + uploads
+        task['processes'] = setup + \
+                            downloads + \
+                            [AuroraThrift._build_process(name = jobid + '_ps', cmd = jobrq['commandline'], final = False)] + \
+                            uploads
 
         #order constraints of all processes so far - i.e. the non-final ones
         task['constraints'] = [ { "order" : [ p['name'] for p in task['processes'] ] } ]
